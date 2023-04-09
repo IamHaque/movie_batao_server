@@ -10,28 +10,27 @@ module.exports.greet = (req, res) => {
 /**
  * Returns media object against passed ID
  *
- * @requires {id} id: id of the searched media
- * @requires {media_type} media_type: type of the searched media (tv or movie)
+ * @requires {mediaId} mediaId: id of the searched media
+ * @requires {mediaType} mediaType: type of the searched media (tv or movie)
  * @optional {language} language: language of the response object
  */
 module.exports.searchById = async (req, res, next) => {
   const language = req.body.language;
 
-  const { id, media_type } = req.body;
-  if (!id) return next(new Error('id is required'));
-  if (!media_type) return next(new Error('media_type is required'));
-  if (!['tv', 'movie'].includes(media_type))
-    return next(new Error('invalid media_type'));
+  const { mediaId, mediaType } = req.body;
+  if (!mediaId) return next(new Error('mediaId is required'));
+  if (!mediaType) return next(new Error('mediaType is required'));
+  if (!['tv', 'movie'].includes(mediaType))
+    return next(new Error('invalid mediaType'));
 
   const response = await axios({
     method: 'get',
-    url: MovieHandler.searchByIdEndpoint(id, media_type, language),
+    url: MovieHandler.searchByIdEndpoint(mediaId, mediaType, language),
   });
 
   if (!response.data) return next(new Error('error fetching data'));
 
-  const result = MovieHandler.mapMediaObject(response.data);
-  result.media_type = media_type;
+  const result = MovieHandler.mapMediaObject(response.data, mediaType);
   res.json(result);
 };
 
@@ -55,6 +54,36 @@ module.exports.searchByTitle = async (req, res, next) => {
   if (!response.data || !response.data.results)
     return next(new Error('error fetching data'));
 
-  const results = MovieHandler.transformResponse(response);
+  const results = MovieHandler.transformResponse({ response });
+  res.json(results);
+};
+
+/**
+ * Returns a list of popular media
+ *
+ * @optional {mediaType} mediaType: type of the searched media (tv or movie)
+ * @optional {language} language: language of the response object
+ * @optional {limit} limit: limit the response object
+ */
+module.exports.getPopular = async (req, res, next) => {
+  const { language, limit } = req.query;
+  const mediaType = req.query.mediaType || 'movie';
+
+  if (!['tv', 'movie'].includes(mediaType))
+    return next(new Error('invalid mediaType'));
+
+  const response = await axios({
+    method: 'get',
+    url: MovieHandler.getPopularEndpoint(mediaType, language),
+  });
+
+  if (!response.data || !response.data.results)
+    return next(new Error('error fetching data'));
+
+  const results = MovieHandler.transformResponse({
+    mediaType,
+    response,
+    limit,
+  });
   res.json(results);
 };

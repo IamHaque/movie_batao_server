@@ -38,59 +38,67 @@ const GENRES = {
   99: { name: 'Documentary' },
 };
 
-const transformResponse = (response, limit = 10) => {
+const transformResponse = ({ response, mediaType, limit = 10 }) => {
   return response.data.results
-    .map(mapMediaObject)
+    .map((media) => mapMediaObject(media, mediaType))
     .filter(
-      ({ title, original_title, poster_path, media_type }) =>
-        ['tv', 'movie'].includes(media_type) &&
+      ({ title, originalTitle, posterPath, mediaType }) =>
+        ['tv', 'movie'].includes(mediaType) &&
         !!title &&
-        !!poster_path &&
-        !!original_title
+        !!posterPath &&
+        !!originalTitle
     )
     .slice(0, limit)
     .sort((a, b) => b.popularity - a.popularity);
 };
 
-const mapMediaObject = (movie) => {
+const mapMediaObject = (movie, mediaType) => {
   const genres = new Set();
-
   if (movie.genres) {
     movie.genres.forEach((genre) => {
       genres.add(genre.name);
     });
   }
-
   if (movie.genre_ids) {
     movie.genre_ids.forEach((genreId) => {
       genres.add(GENRES[genreId]?.name || 'Other');
     });
   }
 
+  const posterPath = !movie.poster_path
+    ? null
+    : TMDB_IMG_URL + '/w500' + movie.poster_path;
+
   return {
-    id: movie.id,
+    posterPath,
+    mediaId: movie.id,
     adult: movie.adult,
-    overview: movie.overview,
+    votes: movie.vote_count,
     genres: Array.from(genres),
+    rating: movie.vote_average,
+    description: movie.overview,
     popularity: movie.popularity,
-    media_type: movie.media_type,
     title: movie.title || movie.name,
-    original_language: movie.original_language,
-    poster_path: TMDB_IMG_URL + '/w500' + movie.poster_path,
-    release_date: movie.release_date || movie.first_air_date,
-    original_title: movie.original_title || movie.original_name,
+    mediaType: movie.media_type || mediaType,
+    originalLanguage: movie.original_language,
+    releaseDate: movie.release_date || movie.first_air_date,
+    originalTitle: movie.original_title || movie.original_name,
   };
 };
 
-const searchByIdEndpoint = (id, media_type, language = 'en-US') =>
-  `${TMDB_BASE_URL}/${media_type}/${id}?api_key=${TMDB_API_KEY}&language=${language}`;
+const searchByIdEndpoint = (mediaId, mediaType, language = 'en-US') =>
+  `${TMDB_BASE_URL}/${mediaType}/${mediaId}?api_key=${TMDB_API_KEY}&language=${language}`;
 
 const searchByTitleEndpoint = (title, language = 'en-US') =>
   `${TMDB_BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&language=${language}&page=1&include_adult=true&query=${title}`;
 
+const getPopularEndpoint = (mediaType, language = 'en-US') =>
+  `${TMDB_BASE_URL}/${mediaType}/popular?api_key=${TMDB_API_KEY}&language=${language}&page=1`;
+
 module.exports = {
   mapMediaObject,
   transformResponse,
+  getPopularEndpoint,
   searchByIdEndpoint,
   searchByTitleEndpoint,
 };
