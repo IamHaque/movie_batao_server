@@ -17,7 +17,7 @@ const getCache = async (key) => {
     const value = await client.get(key);
     if (!value) return;
 
-    return res.json(JSON.parse(value));
+    return JSON.parse(value);
   } catch (e) {
     console.log('Get Error:', e.message);
   }
