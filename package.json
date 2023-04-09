@@ -5,6 +5,7 @@
   "main": "index.js",
   "private": "true",
   "scripts": {
+    "start": "node index.js",
     "dev": "nodemon index.js"
   },
   "keywords": [],
