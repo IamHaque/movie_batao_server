@@ -12,4 +12,25 @@ client.on('connect', () => {
   console.log('Successfully connected to the Redis cluster!');
 });
 
-module.exports = client;
+const getCache = async (key) => {
+  try {
+    const value = await client.get(key);
+    if (!value) return;
+
+    return res.json(JSON.parse(value));
+  } catch (e) {
+    console.log('Get Error:', e.message);
+  }
+};
+
+const setCache = async (key, value) => {
+  try {
+    return await client.set(key, JSON.stringify(value), {
+      EX: 60 * 60 * 24,
+    });
+  } catch (e) {
+    console.log('Set Error:', e.message);
+  }
+};
+
+module.exports = { client, getCache, setCache };

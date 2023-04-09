@@ -77,8 +77,8 @@ module.exports.getPopular = async (req, res, next) => {
   if (language) popularMediaKey += '_' + language;
   if (limit) popularMediaKey += '_' + limit;
 
-  let cachedResults = await CacheHandler.get(popularMediaKey);
-  if (cachedResults) return res.json(JSON.parse(cachedResults));
+  let cachedResults = await CacheHandler.getCache(popularMediaKey);
+  if (cachedResults) return res.json(cachedResults);
 
   const response = await axios({
     method: 'get',
@@ -94,8 +94,6 @@ module.exports.getPopular = async (req, res, next) => {
     limit,
   });
 
-  await CacheHandler.set(popularMediaKey, JSON.stringify(results), {
-    EX: 60 * 60 * 24,
-  });
+  await CacheHandler.setCache(popularMediaKey, results);
   res.json(results);
 };
