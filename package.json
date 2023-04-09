@@ -5,8 +5,8 @@
   "main": "index.js",
   "private": "true",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js | pino-pretty",
+    "dev": "nodemon index.js | pino-pretty"
   },
   "keywords": [],
   "author": "",
@@ -17,7 +17,10 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "helmet": "^6.0.1",
-    "mongoose": "^7.0.3"
+    "mongoose": "^7.0.3",
+    "pino-http": "^8.3.3",
+    "pino-pretty": "^10.0.0",
+    "redis": "^4.6.5"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

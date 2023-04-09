@@ -18,9 +18,15 @@ mongoose.connection.on('error', (err) => {
 require('./database/models/user.model');
 require('./database/models/collection.model');
 
-// start the server
-const app = require('./app');
-const PORT = process.env.PORT || 3100;
-const server = app.listen(PORT, () => {
-  console.log(`Server started at ${process.env.BASE_URL}:${PORT}`);
-});
+(async () => {
+  // import redis cache
+  const redisClient = require('./handlers/cache.handler');
+  await redisClient.connect();
+
+  // start the server
+  const app = require('./app');
+  const PORT = process.env.PORT || 3100;
+  const server = app.listen(PORT, () => {
+    console.log(`Server started at ${process.env.BASE_URL}:${PORT}`);
+  });
+})();

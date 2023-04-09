@@ -1,5 +1,6 @@
 const axios = require('axios');
 const MovieHandler = require('../handlers/media.handler');
+const CacheHandler = require('../handlers/cache.handler');
 
 module.exports.greet = (req, res) => {
   res.json({
@@ -72,6 +73,13 @@ module.exports.getPopular = async (req, res, next) => {
   if (!['tv', 'movie'].includes(mediaType))
     return next(new Error('invalid mediaType'));
 
+  let popularMediaKey = 'popular_' + mediaType;
+  if (language) popularMediaKey += '_' + language;
+  if (limit) popularMediaKey += '_' + limit;
+
+  let cachedResults = await CacheHandler.get(popularMediaKey);
+  if (cachedResults) return res.json(JSON.parse(cachedResults));
+
   const response = await axios({
     method: 'get',
     url: MovieHandler.getPopularEndpoint(mediaType, language),
@@ -84,6 +92,10 @@ module.exports.getPopular = async (req, res, next) => {
     mediaType,
     response,
     limit,
+  });
+
+  await CacheHandler.set(popularMediaKey, JSON.stringify(results), {
+    EX: 60 * 60 * 24,
   });
   res.json(results);
 };

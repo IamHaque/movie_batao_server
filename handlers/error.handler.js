@@ -9,8 +9,6 @@
 exports.catchErrors = (fn) => {
   return function (req, res, next) {
     return fn(req, res, next).catch((err) => {
-      console.log(err);
-
       const error = new Error(err.message);
       error.status = err.status || 404;
 
@@ -34,7 +32,6 @@ exports.catchErrors = (fn) => {
     If we hit a route that is not found, we mark it as 404 and pass it along to the next error handler to display
   */
 exports.notFound = (req, res, next) => {
-  console.log('notFound');
   const err = new Error('Not Found');
   err.status = 404;
   next(err);

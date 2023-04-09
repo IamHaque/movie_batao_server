@@ -1,4 +1,5 @@
 const express = require('express');
+const pino = require('pino-http');
 const helmet = require('helmet');
 const cors = require('cors');
 
@@ -13,6 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middlewares
 app.use(cors());
+app.use(pino());
 app.use(helmet());
 
 // Handle routes
