@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 
 const ErrorHandler = require('./handlers/error.handler');
-const swaggerSpecification = require('./swagger.config');
+const swaggerSpecification = require('./config/swagger.config');
 
 // create Express app
 const app = express();

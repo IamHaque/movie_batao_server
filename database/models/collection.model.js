@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const MediaSchema = mongoose.Schema({
+const CollectionMediaSchema = mongoose.Schema({
   mediaId: {
     type: Number,
     unique: true,
@@ -12,7 +12,7 @@ const MediaSchema = mongoose.Schema({
 
 const collectionSchema = new Schema(
   {
-    medias: [{ type: MediaSchema }],
+    medias: [{ type: CollectionMediaSchema }],
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
   {

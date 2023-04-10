@@ -1,28 +1,11 @@
-const mongoose = require('mongoose');
-
 // import environmental variables
 require('dotenv').config();
 
-// connect to Database and handle any bad connections
-mongoose.set('strictQuery', false);
-mongoose.connect(process.env.MONGODB_CONNECTION_STRING, {
-  useUnifiedTopology: true,
-  useNewUrlParser: true,
-  autoIndex: true,
-});
-mongoose.connection.on('error', (err) => {
-  console.error(`[MongoError] → ${err.message}`);
-});
+// connect to mongoDB
+require('./database/db');
 
-// import database models
-require('./database/models/user.model');
-require('./database/models/collection.model');
-
-(async () => {
-  // import redis cache
-  const CacheHandler = require('./handlers/cache.handler');
-  await CacheHandler.client.connect();
-})();
+// connect to redis
+// require('./handlers/cache.handler');
 
 // start the server
 const app = require('./app');

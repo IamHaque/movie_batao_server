@@ -1,14 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const MediaSchema = mongoose.Schema({
-  mediaId: {
-    type: Number,
-    unique: true,
-  },
-  media_type: String,
-});
-
 const userSchema = new Schema(
   {
     email: {
@@ -28,7 +20,7 @@ const userSchema = new Schema(
       type: String,
       default: 'local',
     },
-    favorites: [{ type: MediaSchema }],
+    favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Favorite' }],
     collections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Collection' }],
   },
   {
