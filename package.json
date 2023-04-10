@@ -1,7 +1,7 @@
 {
   "name": "movie_batao_server",
   "version": "1.0.0",
-  "description": "",
+  "description": "REST API for MovieBatao app",
   "main": "index.js",
   "private": "true",
   "scripts": {
@@ -9,8 +9,8 @@
     "dev": "nodemon index.js | pino-pretty -c -H"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "ChamberOfDevelopers",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.3.5",
     "cors": "^2.8.5",
@@ -20,7 +20,9 @@
     "mongoose": "^7.0.3",
     "pino-http": "^8.3.3",
     "pino-pretty": "^10.0.0",
-    "redis": "^4.6.5"
+    "redis": "^4.6.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
