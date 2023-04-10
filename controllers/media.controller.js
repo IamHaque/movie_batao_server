@@ -97,3 +97,87 @@ module.exports.getPopular = async (req, res, next) => {
   await CacheHandler.setCache(popularMediaKey, results);
   res.json(results);
 };
+
+/**
+ * Returns a list of similar media for the source media
+ *
+ * @requires {mediaId} mediaId: id of the source media
+ * @requires {mediaType} mediaType: type of the source media (tv or movie)
+ * @optional {language} language: language of the response object
+ * @optional {limit} limit: limit the response object
+ */
+module.exports.getSimilar = async (req, res, next) => {
+  const { mediaId, language, limit } = req.query;
+  const mediaType = req.query.mediaType || 'movie';
+
+  if (!mediaId) return next(new Error('mediaId is required'));
+  if (!mediaType) return next(new Error('mediaType is required'));
+  if (!['tv', 'movie'].includes(mediaType))
+    return next(new Error('invalid mediaType'));
+
+  let similarMediaKey = 'similar_' + mediaType + '_' + mediaId;
+  if (language) similarMediaKey += '_' + language;
+  if (limit) similarMediaKey += '_' + limit;
+
+  let cachedResults = await CacheHandler.getCache(similarMediaKey);
+  if (cachedResults) return res.json(cachedResults);
+
+  const response = await axios({
+    method: 'get',
+    url: MovieHandler.getSimilarEndpoint(mediaId, mediaType, language),
+  });
+
+  if (!response.data || !response.data.results)
+    return next(new Error('error fetching data'));
+
+  const results = MovieHandler.transformResponse({
+    mediaType,
+    response,
+    limit,
+  });
+
+  await CacheHandler.setCache(similarMediaKey, results);
+  res.json(results);
+};
+
+/**
+ * Returns a list of recommended media for the source media
+ *
+ * @requires {mediaId} mediaId: id of the source media
+ * @requires {mediaType} mediaType: type of the source media (tv or movie)
+ * @optional {language} language: language of the response object
+ * @optional {limit} limit: limit the response object
+ */
+module.exports.getRecommended = async (req, res, next) => {
+  const { mediaId, language, limit } = req.query;
+  const mediaType = req.query.mediaType || 'movie';
+
+  if (!mediaId) return next(new Error('mediaId is required'));
+  if (!mediaType) return next(new Error('mediaType is required'));
+  if (!['tv', 'movie'].includes(mediaType))
+    return next(new Error('invalid mediaType'));
+
+  let recommendedMediaKey = 'recommended_' + mediaType + '_' + mediaId;
+  if (language) recommendedMediaKey += '_' + language;
+  if (limit) recommendedMediaKey += '_' + limit;
+
+  let cachedResults = await CacheHandler.getCache(recommendedMediaKey);
+  if (cachedResults) return res.json(cachedResults);
+
+  const response = await axios({
+    method: 'get',
+    url: MovieHandler.getRecommendedEndpoint(mediaId, mediaType, language),
+  });
+
+  if (!response.data || !response.data.results)
+    return next(new Error('error fetching data'));
+
+  const results = MovieHandler.transformResponse({
+    mediaType,
+    response,
+    limit,
+  });
+
+  await CacheHandler.setCache(recommendedMediaKey, results);
+  res.json(results);
+};

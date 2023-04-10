@@ -52,37 +52,37 @@ const transformResponse = ({ response, mediaType, limit = 10 }) => {
     .sort((a, b) => b.popularity - a.popularity);
 };
 
-const mapMediaObject = (movie, mediaType) => {
+const mapMediaObject = (media, mediaType) => {
   const genres = new Set();
-  if (movie.genres) {
-    movie.genres.forEach((genre) => {
+  if (media.genres) {
+    media.genres.forEach((genre) => {
       genres.add(genre.name);
     });
   }
-  if (movie.genre_ids) {
-    movie.genre_ids.forEach((genreId) => {
+  if (media.genre_ids) {
+    media.genre_ids.forEach((genreId) => {
       genres.add(GENRES[genreId]?.name || 'Other');
     });
   }
 
-  const posterPath = !movie.poster_path
+  const posterPath = !media.poster_path
     ? null
-    : TMDB_IMG_URL + '/w500' + movie.poster_path;
+    : TMDB_IMG_URL + '/w500' + media.poster_path;
 
   return {
     posterPath,
-    mediaId: movie.id,
-    adult: movie.adult,
-    votes: movie.vote_count,
+    mediaId: media.id,
+    adult: media.adult,
+    votes: media.vote_count,
     genres: Array.from(genres),
-    rating: movie.vote_average,
-    description: movie.overview,
-    popularity: movie.popularity,
-    title: movie.title || movie.name,
-    mediaType: movie.media_type || mediaType,
-    originalLanguage: movie.original_language,
-    releaseDate: movie.release_date || movie.first_air_date,
-    originalTitle: movie.original_title || movie.original_name,
+    rating: media.vote_average,
+    description: media.overview,
+    popularity: media.popularity,
+    title: media.title || media.name,
+    mediaType: media.media_type || mediaType,
+    originalLanguage: media.original_language,
+    releaseDate: media.release_date || media.first_air_date,
+    originalTitle: media.original_title || media.original_name,
   };
 };
 
@@ -95,10 +95,18 @@ const searchByTitleEndpoint = (title, language = 'en-US') =>
 const getPopularEndpoint = (mediaType, language = 'en-US') =>
   `${TMDB_BASE_URL}/${mediaType}/popular?api_key=${TMDB_API_KEY}&language=${language}&page=1`;
 
+const getSimilarEndpoint = (mediaId, mediaType, language = 'en-US') =>
+  `${TMDB_BASE_URL}/${mediaType}/${mediaId}/similar?api_key=${TMDB_API_KEY}&language=${language}&page=1`;
+
+const getRecommendedEndpoint = (mediaId, mediaType, language = 'en-US') =>
+  `${TMDB_BASE_URL}/${mediaType}/${mediaId}/recommendations?api_key=${TMDB_API_KEY}&language=${language}&page=1`;
+
 module.exports = {
   mapMediaObject,
   transformResponse,
   getPopularEndpoint,
   searchByIdEndpoint,
+  getSimilarEndpoint,
   searchByTitleEndpoint,
+  getRecommendedEndpoint,
 };
