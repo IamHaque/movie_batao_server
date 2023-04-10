@@ -5,7 +5,8 @@ require('dotenv').config();
 require('./database/db');
 
 // connect to redis
-// require('./handlers/cache.handler');
+const CacheHandler = require('./handlers/cache.handler');
+(async () => await CacheHandler.client.connect())();
 
 // start the server
 const app = require('./app');

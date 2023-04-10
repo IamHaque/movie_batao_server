@@ -12,12 +12,6 @@ client.on('connect', () => {
   console.log('Successfully connected to the Redis cluster!');
 });
 
-const connect = async () => {
-  await client.connect();
-};
-
-connect();
-
 const getCache = async (key) => {
   try {
     const value = await client.get(key);
