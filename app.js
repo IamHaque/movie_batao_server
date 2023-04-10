@@ -19,6 +19,9 @@ app.use(cors());
 app.use(pino());
 app.use(helmet());
 
+// Serve static files
+app.use(express.static(__dirname + '/public'));
+
 // Handle routes
 app.use('/', require('./routes/media.route'));
 app.use('/user', require('./routes/user.route'));
