@@ -110,8 +110,8 @@ router.get('/', MovieController.greet);
  * @swagger
  * /popular:
  *   get:
- *     summary: Retrieve recommended medias
- *     description: Returns a list of media matching the provided title
+ *     summary: Retrieve popular medias
+ *     description: Returns a list of media matching the provided ID
  *     tags: [Media]
  *     parameters:
  *       - $ref: '#/parameters/mediaTypeParam'
@@ -141,8 +141,8 @@ router.get('/popular', MovieController.getPopular);
  * @swagger
  * /similar:
  *   get:
- *     summary: Retrieve recommended medias
- *     description: Returns a list of media matching the provided title
+ *     summary: Retrieve similar medias
+ *     description: Returns a list of media matching the provided ID and type
  *     tags: [Media]
  *     parameters:
  *       - $ref: '#/parameters/mediaIdParam'
@@ -174,7 +174,7 @@ router.get('/similar', MovieController.getSimilar);
  * /recommended:
  *   get:
  *     summary: Retrieve recommended medias
- *     description: Returns a list of media matching the provided title
+ *     description: Returns a list of media matching the provided ID and type
  *     tags: [Media]
  *     parameters:
  *       - $ref: '#/parameters/mediaIdParam'
