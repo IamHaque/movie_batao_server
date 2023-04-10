@@ -28,7 +28,10 @@ app.use('/user', require('./routes/user.route'));
 app.use(
   '/docs',
   swaggerUI.serve,
-  swaggerUI.setup(swaggerSpecification, { explorer: true })
+  swaggerUI.setup(swaggerSpecification, {
+    explorer: true,
+    customCssUrl: '/swagger-ui.css',
+  })
 );
 
 // If that above routes didn't work, we 404 them and forward to error handler
