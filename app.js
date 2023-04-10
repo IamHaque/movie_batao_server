@@ -33,6 +33,10 @@ app.use(
     customCssUrl: '/swagger-ui.css',
   })
 );
+app.get('/docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpecification);
+});
 
 // If that above routes didn't work, we 404 them and forward to error handler
 app.use(ErrorHandler.notFound);

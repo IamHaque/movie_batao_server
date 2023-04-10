@@ -4,6 +4,7 @@ const router = express.Router();
 const MovieController = require('../controllers/media.controller');
 
 const { catchErrors } = require('../handlers/error.handler');
+const { auth } = require('../middlewares/auth.middleware');
 
 /**
  * @swagger
@@ -14,7 +15,42 @@ const { catchErrors } = require('../handlers/error.handler');
 
 /**
  * @swagger
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
+
+/**
+ * @swagger
  * definitions:
+ *   mediaId:
+ *     type: string
+ *     example: 603692
+ *     description: media ID
+ *   mediaType:
+ *     type: string
+ *     example: movie
+ *     description: media type
+ *   language:
+ *     type: string
+ *     example: en-US
+ *     description: language in ISO 639-1 code
+ *   limit:
+ *     type: number
+ *     example: 10
+ *     description: limit of response items
+ *   title:
+ *     type: number
+ *     example: John Wick
+ *     description: media title
+ *   token:
+ *     type: string
+ *     example: eyJhbGciOiJIUzI1
+ *     description: JWT token
+ *
  *   MediaList:
  *     properties:
  *       mediaId:
@@ -76,32 +112,31 @@ const { catchErrors } = require('../handlers/error.handler');
  *     in: query
  *     name: mediaId
  *     schema:
- *       type: string
- *       example: 603692
+ *       $ref: '#/definitions/mediaId'
  *     required: true
- *     description: media ID
  *   mediaTypeParam:
  *     in: query
  *     name: mediaType
  *     schema:
- *       type: string
- *       example: movie
+ *       $ref: '#/definitions/mediaType'
  *     required: true
- *     description: media type
  *   languageParam:
  *     in: query
  *     name: language
  *     schema:
- *       type: string
- *       example: en-US
- *     description: language in ISO 639-1 code
+ *       $ref: '#/definitions/language'
  *   limitParam:
  *     in: query
  *     name: limit
  *     schema:
- *       type: number
- *       example: 10
- *     description: limit of response items
+ *       $ref: '#/definitions/limit'
+ *
+ *   jwtToken:
+ *     in: header
+ *     name: x-access-token
+ *     schema:
+ *       $ref: '#/definitions/token'
+ *     required: true
  */
 
 router.get('/', MovieController.greet);
@@ -113,10 +148,13 @@ router.get('/', MovieController.greet);
  *     summary: Retrieve popular medias
  *     description: Returns a list of media matching the provided ID
  *     tags: [Media]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - $ref: '#/parameters/mediaTypeParam'
  *       - $ref: '#/parameters/languageParam'
  *       - $ref: '#/parameters/limitParam'
+ *       - $ref: '#/parameters/jwtToken'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -135,7 +173,7 @@ router.get('/', MovieController.greet);
  *               $ref: '#/definitions/ServerError'
  *
  */
-router.get('/popular', MovieController.getPopular);
+router.get('/popular', auth, MovieController.getPopular);
 
 /**
  * @swagger
@@ -144,11 +182,14 @@ router.get('/popular', MovieController.getPopular);
  *     summary: Retrieve similar medias
  *     description: Returns a list of media matching the provided ID and type
  *     tags: [Media]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - $ref: '#/parameters/mediaIdParam'
  *       - $ref: '#/parameters/mediaTypeParam'
  *       - $ref: '#/parameters/languageParam'
  *       - $ref: '#/parameters/limitParam'
+ *       - $ref: '#/parameters/jwtToken'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -167,7 +208,7 @@ router.get('/popular', MovieController.getPopular);
  *               $ref: '#/definitions/ServerError'
  *
  */
-router.get('/similar', MovieController.getSimilar);
+router.get('/similar', auth, MovieController.getSimilar);
 
 /**
  * @swagger
@@ -176,11 +217,14 @@ router.get('/similar', MovieController.getSimilar);
  *     summary: Retrieve recommended medias
  *     description: Returns a list of media matching the provided ID and type
  *     tags: [Media]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - $ref: '#/parameters/mediaIdParam'
  *       - $ref: '#/parameters/mediaTypeParam'
  *       - $ref: '#/parameters/languageParam'
  *       - $ref: '#/parameters/limitParam'
+ *       - $ref: '#/parameters/jwtToken'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -199,7 +243,7 @@ router.get('/similar', MovieController.getSimilar);
  *               $ref: '#/definitions/ServerError'
  *
  */
-router.get('/recommended', MovieController.getRecommended);
+router.get('/recommended', auth, MovieController.getRecommended);
 
 /**
  * @swagger
@@ -208,6 +252,8 @@ router.get('/recommended', MovieController.getRecommended);
  *     summary: Retrieve media with ID
  *     description: Returns a media matching the provided ID and type
  *     tags: [Media]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -215,21 +261,18 @@ router.get('/recommended', MovieController.getRecommended);
  *           schema:
  *             type: object
  *             required:
+ *               - token
  *               - mediaId
  *               - mediaType
  *             properties:
+ *               token:
+ *                 $ref: '#/definitions/token'
  *               mediaId:
- *                 type: string
- *                 description: media ID
- *                 example: 603692
+ *                 $ref: '#/definitions/mediaId'
  *               mediaType:
- *                 type: string
- *                 description: media type
- *                 example: movie
+ *                 $ref: '#/definitions/mediaType'
  *               language:
- *                 type: string
- *                 description: language in ISO 639-1 code
- *                 example: en-US
+ *                 $ref: '#/definitions/language'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -247,7 +290,7 @@ router.get('/recommended', MovieController.getRecommended);
  *               $ref: '#/definitions/ServerError'
  *
  */
-router.post('/searchById', catchErrors(MovieController.searchById));
+router.post('/searchById', auth, catchErrors(MovieController.searchById));
 
 /**
  * @swagger
@@ -256,6 +299,8 @@ router.post('/searchById', catchErrors(MovieController.searchById));
  *     summary: Retrieve medias with title
  *     description: Returns a list of media matching the provided title
  *     tags: [Media]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -263,16 +308,15 @@ router.post('/searchById', catchErrors(MovieController.searchById));
  *           schema:
  *             type: object
  *             required:
+ *               - token
  *               - title
  *             properties:
+ *               token:
+ *                 $ref: '#/definitions/token'
  *               title:
- *                 type: string
- *                 description: media title
- *                 example: John Wick
+ *                 $ref: '#/definitions/title'
  *               language:
- *                 type: string
- *                 description: language in ISO 639-1 code
- *                 example: en-US
+ *                 $ref: '#/definitions/language'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -291,6 +335,6 @@ router.post('/searchById', catchErrors(MovieController.searchById));
  *               $ref: '#/definitions/ServerError'
  *
  */
-router.post('/searchByTitle', catchErrors(MovieController.searchByTitle));
+router.post('/searchByTitle', auth, catchErrors(MovieController.searchByTitle));
 
 module.exports = router;

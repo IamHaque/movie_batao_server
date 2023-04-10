@@ -15,32 +15,45 @@ const { catchErrors } = require('../handlers/error.handler');
 /**
  * @swagger
  * definitions:
+ *   email:
+ *     type: string
+ *     example: example@email.com
+ *     description: user email
+ *   username:
+ *     type: string
+ *     example: John Doe
+ *     description: username
+ *   providerId:
+ *     type: string
+ *     example: 6432a2ea9f31dd8
+ *     description: user provider ID
+ *   provider:
+ *     type: string
+ *     example: google
+ *     description: user provider
+ *
  *   User:
  *     properties:
  *       _id:
  *         type: string
  *         example: 6432a2ea9f31dd86c09a6cac
  *       email:
- *         type: string
- *         example: example@email.com
+ *         $ref: '#/definitions/email'
  *       username:
- *         type: string
- *         example: John Doe
+ *         $ref: '#/definitions/username'
+ *       providerId:
+ *         $ref: '#/definitions/providerId'
  *       provider:
- *         type: string
- *         example: google
- *       collections:
- *         type: array
- *         example: []
- *       favorites:
- *         type: array
- *         example: []
+ *         $ref: '#/definitions/provider'
  *       createdAt:
  *         type: string
  *         example: 2023-04-09T11:35:06.299Z
  *       updatedAt:
  *         type: string
  *         example: 2023-04-09T11:35:06.299Z
+ *       token:
+ *         type: string
+ *         example: eyJhbGciOiJIUzI1
  *
  *   ServerError:
  *     properties:
@@ -54,7 +67,7 @@ const { catchErrors } = require('../handlers/error.handler');
 
 /**
  * @swagger
- * /user/getByEmail:
+ * /user/login:
  *   post:
  *     summary: Retrieve user data
  *     description: Returns user data for the provided email from the database
@@ -65,11 +78,14 @@ const { catchErrors } = require('../handlers/error.handler');
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
+ *               - providerId
  *             properties:
  *               email:
- *                 type: string
- *                 description: email of the user
- *                 example: example@email.com
+ *                 $ref: '#/definitions/email'
+ *               providerId:
+ *                 $ref: '#/definitions/providerId'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -87,11 +103,11 @@ const { catchErrors } = require('../handlers/error.handler');
  *               $ref: '#/definitions/ServerError'
  *
  */
-router.post('/getByEmail', catchErrors(UserController.getUser));
+router.post('/login', catchErrors(UserController.login));
 
 /**
  * @swagger
- * /user/create:
+ * /user/register:
  *   post:
  *     summary: Create a new user
  *     description: Creates a new user with provided data in the database
@@ -105,19 +121,16 @@ router.post('/getByEmail', catchErrors(UserController.getUser));
  *             required:
  *               - email
  *               - username
+ *               - providerId
  *             properties:
  *               email:
- *                 type: string
- *                 description: user email
- *                 example: example@email.com
+ *                 $ref: '#/definitions/email'
  *               username:
- *                 type: string
- *                 description: username
- *                 example: John Doe
+ *                 $ref: '#/definitions/username'
+ *               providerId:
+ *                 $ref: '#/definitions/providerId'
  *               provider:
- *                 type: string
- *                 description: user provider
- *                 example: google
+ *                 $ref: '#/definitions/provider'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -135,6 +148,6 @@ router.post('/getByEmail', catchErrors(UserController.getUser));
  *               $ref: '#/definitions/ServerError'
  *
  */
-router.post('/create', catchErrors(UserController.createUser));
+router.post('/register', catchErrors(UserController.register));
 
 module.exports = router;

@@ -19,9 +19,11 @@ const options = {
     servers: [
       {
         url: 'http://localhost:3100',
+        description: 'Local server',
       },
       {
         url: 'https://moviebataoserver.vercel.app',
+        description: 'Production server',
       },
     ],
   },

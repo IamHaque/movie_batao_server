@@ -15,6 +15,12 @@ const userSchema = new Schema(
       type: String,
       required: 'Username is required',
     },
+    providerId: {
+      type: String,
+      trim: true,
+      unique: true,
+      required: 'Provider ID is required',
+    },
     provider: {
       trim: true,
       type: String,
