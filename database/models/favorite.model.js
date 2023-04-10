@@ -7,7 +7,8 @@ const favoriteSchema = new Schema(
       type: Number,
       unique: true,
     },
-    media_type: String,
+    user: String,
+    mediaType: String,
     watched: { type: Boolean, default: false },
   },
   {

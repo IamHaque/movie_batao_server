@@ -9,6 +9,8 @@
 exports.catchErrors = (fn) => {
   return function (req, res, next) {
     return fn(req, res, next).catch((err) => {
+      console.log(err.message);
+
       const error = new Error(err.message);
       error.status = err.status || 404;
 

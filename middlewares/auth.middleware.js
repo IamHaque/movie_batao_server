@@ -2,7 +2,7 @@ const JwtHandler = require('../handlers/jwt.handler');
 
 const auth = (req, res, next) => {
   try {
-    const token = req.body.token || req.headers['x-access-token'];
+    const token = req.headers['x-access-token'];
     if (!token) throw new Error('authentication token is required');
 
     const decoded = JwtHandler.verifyToken(token);

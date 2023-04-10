@@ -1,6 +1,8 @@
 const axios = require('axios');
 const MovieHandler = require('../handlers/media.handler');
 const CacheHandler = require('../handlers/cache.handler');
+const UserService = require('../database/services/user.service');
+const FavoriteService = require('../database/services/favorite.service');
 
 module.exports.greet = (req, res) => {
   res.json({
@@ -24,6 +26,12 @@ module.exports.searchById = async (req, res, next) => {
   if (!['tv', 'movie'].includes(mediaType))
     return next(new Error('invalid mediaType'));
 
+  let mediaKey = 'media_' + mediaType;
+  if (mediaId) mediaKey += '_' + mediaId;
+
+  let cachedResults = await CacheHandler.getCache(mediaKey);
+  if (cachedResults) return res.json(cachedResults);
+
   const response = await axios({
     method: 'get',
     url: MovieHandler.searchByIdEndpoint(mediaId, mediaType, language),
@@ -32,6 +40,7 @@ module.exports.searchById = async (req, res, next) => {
   if (!response.data) return next(new Error('error fetching data'));
 
   const result = MovieHandler.mapMediaObject(response.data, mediaType);
+  await CacheHandler.setCache(mediaKey, result);
   res.json(result);
 };
 
@@ -180,4 +189,99 @@ module.exports.getRecommended = async (req, res, next) => {
 
   await CacheHandler.setCache(recommendedMediaKey, results);
   res.json(results);
+};
+
+/**
+ * Returns favorite media for user
+ *
+ * @requires {email} email: user email
+ */
+module.exports.getFavorites = async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) next(new Error('email is required'));
+
+  const favorites = await UserService.getAllFavorites(email);
+  if (!favorites) return next(new Error('error fetching favorite medias'));
+
+  const favoriteMedias = [];
+
+  for (let favorite of favorites) {
+    try {
+      const { _id, mediaId, mediaType, watched, updatedAt } = favorite;
+      let media = {
+        id: _id,
+        watched: watched,
+        updatedAt: updatedAt,
+      };
+
+      let mediaKey = 'media_' + mediaType + '_' + mediaId;
+
+      let cachedResults = await CacheHandler.getCache(mediaKey);
+      if (cachedResults) {
+        favoriteMedias.push({ ...cachedResults, ...media });
+        continue;
+      }
+
+      const response = await axios({
+        method: 'get',
+        url: MovieHandler.searchByIdEndpoint(mediaId, mediaType),
+      });
+
+      const result = MovieHandler.mapMediaObject(response.data, mediaType);
+      await CacheHandler.setCache(mediaKey, result);
+      favoriteMedias.push({ ...result, ...media });
+    } catch (e) {
+      console.log('GET Error:', e.message);
+    }
+  }
+
+  res.send(favoriteMedias);
+};
+
+/**
+ * Toggles favorite flag of the passed media
+ *
+ * @requires {email} email: user email
+ * @requires {mediaId} mediaId: id of the passed media
+ * @requires {mediaType} mediaType: type of the passed media (tv or movie)
+ */
+module.exports.toggleFavorite = async (req, res, next) => {
+  const { email, mediaId, mediaType } = req.body;
+  if (!email) next(new Error('email is required'));
+  if (!mediaId) return next(new Error('mediaId is required'));
+  if (!mediaType) return next(new Error('mediaType is required'));
+  if (!['tv', 'movie'].includes(mediaType))
+    return next(new Error('invalid mediaType'));
+
+  const media = await FavoriteService.find({ mediaId, user: email });
+
+  if (!media) {
+    const createdMedia = await FavoriteService.create({
+      mediaId,
+      mediaType,
+      user: email,
+    });
+    await UserService.addFavoriteMedia(email, createdMedia?._id);
+    return res.send({ mediaId, mediaType, isFavorite: true });
+  }
+
+  await FavoriteService.remove(media?._id);
+  await UserService.removeFavoriteMedia(email, media?._id);
+  res.send({ mediaId, mediaType, isFavorite: false });
+};
+
+/**
+ * Returns whether media is favorite or not
+ *
+ * @requires {email} email: user email
+ * @requires {mediaId} mediaId: id of the passed media
+ */
+module.exports.isFavorite = async (req, res, next) => {
+  const { email, mediaId } = req.body;
+  if (!email) next(new Error('email is required'));
+  if (!mediaId) return next(new Error('mediaId is required'));
+
+  const media = await FavoriteService.find({ mediaId, user: email });
+  const isFavorite = !!media;
+  res.send({ mediaId, isFavorite });
 };

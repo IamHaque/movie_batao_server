@@ -15,6 +15,13 @@ const { auth } = require('../middlewares/auth.middleware');
 
 /**
  * @swagger
+ * tags:
+ *   name: FavoriteMedia
+ *   description: Handles favorite media endpoints
+ */
+
+/**
+ * @swagger
  * components:
  *   securitySchemes:
  *     bearerAuth:
@@ -46,6 +53,10 @@ const { auth } = require('../middlewares/auth.middleware');
  *     type: number
  *     example: John Wick
  *     description: media title
+ *   email:
+ *     type: string
+ *     example: example@email.com
+ *     description: user email
  *   token:
  *     type: string
  *     example: eyJhbGciOiJIUzI1
@@ -94,6 +105,30 @@ const { auth } = require('../middlewares/auth.middleware');
  *       posterPath:
  *         type: string
  *         example: https://posterPath.jpg
+ *
+ *   FavoriteList:
+ *     properties:
+ *       id:
+ *         type: string
+ *         example: 669223
+ *       watched:
+ *         type: boolean
+ *         example: false
+ *       updatedAt:
+ *         type: string
+ *         example: 2023-04-09T11:35:06.299Z
+ *
+ *   FavoriteStatus:
+ *     properties:
+ *       mediaId:
+ *         type: number
+ *         example: 669223
+ *       mediaType:
+ *         type: string
+ *         example: movie
+ *       isFavorite:
+ *         type: boolean
+ *         example: false
  *
  *   ServerError:
  *     properties:
@@ -254,6 +289,8 @@ router.get('/recommended', auth, MovieController.getRecommended);
  *     tags: [Media]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/parameters/jwtToken'
  *     requestBody:
  *       required: true
  *       content:
@@ -261,12 +298,9 @@ router.get('/recommended', auth, MovieController.getRecommended);
  *           schema:
  *             type: object
  *             required:
- *               - token
  *               - mediaId
  *               - mediaType
  *             properties:
- *               token:
- *                 $ref: '#/definitions/token'
  *               mediaId:
  *                 $ref: '#/definitions/mediaId'
  *               mediaType:
@@ -301,6 +335,8 @@ router.post('/searchById', auth, catchErrors(MovieController.searchById));
  *     tags: [Media]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/parameters/jwtToken'
  *     requestBody:
  *       required: true
  *       content:
@@ -308,11 +344,8 @@ router.post('/searchById', auth, catchErrors(MovieController.searchById));
  *           schema:
  *             type: object
  *             required:
- *               - token
  *               - title
  *             properties:
- *               token:
- *                 $ref: '#/definitions/token'
  *               title:
  *                 $ref: '#/definitions/title'
  *               language:
@@ -336,5 +369,146 @@ router.post('/searchById', auth, catchErrors(MovieController.searchById));
  *
  */
 router.post('/searchByTitle', auth, catchErrors(MovieController.searchByTitle));
+
+/**
+ * @swagger
+ * /isFavorite:
+ *   post:
+ *     summary: Retrieve favorite status
+ *     description: Returns whether the media is in user favorites or not
+ *     tags: [FavoriteMedia]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/parameters/jwtToken'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - mediaId
+ *               - mediaType
+ *             properties:
+ *               email:
+ *                 $ref: '#/definitions/email'
+ *               mediaId:
+ *                 $ref: '#/definitions/mediaId'
+ *     responses:
+ *       200:
+ *         description: Object containing user data fetched from the database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/FavoriteStatus'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.post('/isFavorite', auth, catchErrors(MovieController.isFavorite));
+
+/**
+ * @swagger
+ * /toggleFavorite:
+ *   post:
+ *     summary: Toggles favorite status
+ *     description: Returns favorite media status after toggle
+ *     tags: [FavoriteMedia]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/parameters/jwtToken'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - mediaId
+ *               - mediaType
+ *             properties:
+ *               email:
+ *                 $ref: '#/definitions/email'
+ *               mediaId:
+ *                 $ref: '#/definitions/mediaId'
+ *               mediaType:
+ *                 $ref: '#/definitions/mediaType'
+ *     responses:
+ *       200:
+ *         description: Object containing user data fetched from the database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/FavoriteStatus'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.post(
+  '/toggleFavorite',
+  auth,
+  catchErrors(MovieController.toggleFavorite)
+);
+
+/**
+ * @swagger
+ * /getFavorites:
+ *   post:
+ *     summary: Retrieve favorite medias
+ *     description: Returns a list of user's favorite medias
+ *     tags: [FavoriteMedia]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/parameters/jwtToken'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 $ref: '#/definitions/email'
+ *     responses:
+ *       200:
+ *         description: Object containing user data fetched from the database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 allOf:
+ *                   - $ref: '#/definitions/FavoriteList'
+ *                   - $ref: '#/definitions/MediaList'
+ *
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.post('/getFavorites', auth, catchErrors(MovieController.getFavorites));
 
 module.exports = router;

@@ -21,6 +21,9 @@ module.exports.login = async (req, res, next) => {
   const token = JwtHandler.generateToken({ providerId, email });
   user.token = token;
 
+  delete user.collections;
+  delete user.favorites;
+  delete user.__v;
   res.send(user);
 };
 
@@ -49,5 +52,8 @@ module.exports.register = async (req, res, next) => {
   const token = JwtHandler.generateToken({ providerId, email });
   user.token = token;
 
+  delete user.collections;
+  delete user.favorites;
+  delete user.__v;
   res.send(user);
 };
