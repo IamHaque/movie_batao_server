@@ -24,7 +24,7 @@ const { auth } = require('../middlewares/auth.middleware');
  * @swagger
  * components:
  *   securitySchemes:
- *     bearerAuth:
+ *     BearerAuth:
  *       type: http
  *       scheme: bearer
  *       bearerFormat: JWT
@@ -165,13 +165,6 @@ const { auth } = require('../middlewares/auth.middleware');
  *     name: limit
  *     schema:
  *       $ref: '#/definitions/limit'
- *
- *   jwtToken:
- *     in: header
- *     name: x-access-token
- *     schema:
- *       $ref: '#/definitions/token'
- *     required: true
  */
 
 router.get('/', MovieController.greet);
@@ -184,12 +177,11 @@ router.get('/', MovieController.greet);
  *     description: Returns a list of media matching the provided ID
  *     tags: [Media]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - $ref: '#/parameters/mediaTypeQueryParam'
  *       - $ref: '#/parameters/languageQueryParam'
  *       - $ref: '#/parameters/limitQueryParam'
- *       - $ref: '#/parameters/jwtToken'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -218,13 +210,12 @@ router.get('/popular', auth, MovieController.getPopular);
  *     description: Returns a list of media matching the provided ID and type
  *     tags: [Media]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - $ref: '#/parameters/mediaIdQueryParam'
  *       - $ref: '#/parameters/mediaTypeQueryParam'
  *       - $ref: '#/parameters/languageQueryParam'
  *       - $ref: '#/parameters/limitQueryParam'
- *       - $ref: '#/parameters/jwtToken'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -253,13 +244,12 @@ router.get('/similar', auth, MovieController.getSimilar);
  *     description: Returns a list of media matching the provided ID and type
  *     tags: [Media]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     parameters:
  *       - $ref: '#/parameters/mediaIdQueryParam'
  *       - $ref: '#/parameters/mediaTypeQueryParam'
  *       - $ref: '#/parameters/languageQueryParam'
  *       - $ref: '#/parameters/limitQueryParam'
- *       - $ref: '#/parameters/jwtToken'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -288,9 +278,7 @@ router.get('/recommended', auth, MovieController.getRecommended);
  *     description: Returns a media matching the provided ID and type
  *     tags: [Media]
  *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - $ref: '#/parameters/jwtToken'
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -334,9 +322,7 @@ router.post('/searchById', auth, catchErrors(MovieController.searchById));
  *     description: Returns a list of media matching the provided title
  *     tags: [Media]
  *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - $ref: '#/parameters/jwtToken'
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -378,9 +364,7 @@ router.post('/searchByTitle', auth, catchErrors(MovieController.searchByTitle));
  *     description: Returns a list of user's favorite medias
  *     tags: [FavoriteMedia]
  *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - $ref: '#/parameters/jwtToken'
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -412,9 +396,8 @@ router.get('/favorite', auth, catchErrors(MovieController.getFavorites));
  *     description: Returns whether the media is in user favorites or not
  *     tags: [FavoriteMedia]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     parameters:
- *       - $ref: '#/parameters/jwtToken'
  *       - $ref: '#/parameters/mediaIdQueryParam'
  *     responses:
  *       200:
@@ -443,9 +426,8 @@ router.get('/favorite/check', auth, catchErrors(MovieController.isFavorite));
  *     description: Returns favorite media status after toggle
  *     tags: [FavoriteMedia]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     parameters:
- *       - $ref: '#/parameters/jwtToken'
  *       - $ref: '#/parameters/mediaIdQueryParam'
  *       - $ref: '#/parameters/mediaTypeQueryParam'
  *     responses:

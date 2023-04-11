@@ -3,8 +3,11 @@ const JwtHandler = require('../handlers/jwt.handler');
 
 const auth = (req, res, next) => {
   try {
-    const token = req.headers['x-access-token'];
-    if (!token) throw new Error('authentication token is required');
+    const authHeader = req.headers.authorization;
+    if (!authHeader) throw new Error('token is required');
+
+    const [prefix, token] = authHeader.split(' ');
+    if (prefix !== 'Bearer' || !token) throw new Error('invalid token');
 
     const decoded = JwtHandler.verifyToken(token);
     if (!decoded) throw new Error('token expired');
