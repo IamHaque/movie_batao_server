@@ -141,6 +141,8 @@ router.get('/recommended', auth, MovieController.getRecommended);
  *               type: object
  *               $ref: '#/definitions/MediaList'
  *               properties:
+ *                 cast:
+ *                   $ref: '#/definitions/castArray'
  *                 isFavorite:
  *                   $ref: '#/definitions/favorite-isFavorite'
  *       500:

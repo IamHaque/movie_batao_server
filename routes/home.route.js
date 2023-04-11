@@ -100,6 +100,12 @@ const router = express.Router();
  *     example: false
  *     description: media is user favorite or not
  *
+ *   castArray:
+ *     type: array
+ *     items:
+ *       type: object
+ *       $ref: '#/definitions/CastList'
+ *
  */
 
 /**
@@ -147,6 +153,21 @@ const router = express.Router();
  *         example: ['Action', 'Thriller']
  *       posterPath:
  *         type: string
+ *         example: https://posterPath.jpg
+ *
+ *   CastList:
+ *     properties:
+ *       actorName:
+ *         type: string
+ *         example: John Doe
+ *         description: actor name
+ *       characterName:
+ *         type: string
+ *         example: John Doe
+ *         description: character name
+ *       posterPath:
+ *         type: string
+ *         description: actor image
  *         example: https://posterPath.jpg
  *
  *   User:

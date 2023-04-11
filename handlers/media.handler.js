@@ -38,7 +38,7 @@ const GENRES = {
   99: { name: 'Documentary' },
 };
 
-const transformResponse = ({ response, mediaType, limit = 10 }) => {
+const transformMediaResponse = ({ response, mediaType, limit = 10 }) => {
   return response.data.results
     .map((media) => mapMediaObject(media, mediaType))
     .filter(
@@ -86,6 +86,28 @@ const mapMediaObject = (media, mediaType) => {
   };
 };
 
+const transformCastResponse = ({ response, limit = 10 }) => {
+  return response.data.cast
+    .map((cast) => mapCastObject(cast))
+    .filter(
+      ({ actorName, characterName, posterPath }) =>
+        !!actorName && !!characterName && !!posterPath
+    )
+    .slice(0, limit);
+};
+
+const mapCastObject = (cast) => {
+  const {
+    name: actorName,
+    character: characterName,
+    profile_path: profilePath,
+  } = cast;
+
+  const posterPath = !profilePath ? null : TMDB_IMG_URL + '/w500' + profilePath;
+
+  return { actorName, characterName, posterPath };
+};
+
 const searchByIdEndpoint = (mediaId, mediaType, language = 'en-US') =>
   `${TMDB_BASE_URL}/${mediaType}/${mediaId}?api_key=${TMDB_API_KEY}&language=${language}`;
 
@@ -101,12 +123,18 @@ const getSimilarEndpoint = (mediaId, mediaType, language = 'en-US') =>
 const getRecommendedEndpoint = (mediaId, mediaType, language = 'en-US') =>
   `${TMDB_BASE_URL}/${mediaType}/${mediaId}/recommendations?api_key=${TMDB_API_KEY}&language=${language}&page=1`;
 
+const getCastEndpoint = (mediaId, mediaType, language = 'en-US') =>
+  `${TMDB_BASE_URL}/${mediaType}/${mediaId}/credits?api_key=${TMDB_API_KEY}&language=${language}`;
+
 module.exports = {
+  mapCastObject,
   mapMediaObject,
-  transformResponse,
+  getCastEndpoint,
   getPopularEndpoint,
   searchByIdEndpoint,
   getSimilarEndpoint,
   searchByTitleEndpoint,
+  transformCastResponse,
+  transformMediaResponse,
   getRecommendedEndpoint,
 };

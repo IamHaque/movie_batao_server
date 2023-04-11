@@ -26,22 +26,33 @@ module.exports.searchById = async (req, res, next) => {
   const media = await FavoriteService.find({ mediaId, user: _id });
   const isFavorite = !!media;
 
-  let mediaKey = 'media_' + mediaType;
-  if (mediaId) mediaKey += '_' + mediaId;
-
-  let cachedResults = await CacheHandler.getCache(mediaKey);
-  if (cachedResults) return res.json({ ...cachedResults, isFavorite });
-
-  const response = await axios({
+  const mediaRequest = axios({
     method: 'get',
     url: MovieHandler.searchByIdEndpoint(mediaId, mediaType, language),
   });
 
-  if (!response.data) return next(new Error('error fetching data'));
+  const castRequest = axios({
+    method: 'get',
+    url: MovieHandler.getCastEndpoint(mediaId, mediaType, language),
+  });
 
-  const result = MovieHandler.mapMediaObject(response.data, mediaType);
-  await CacheHandler.setCache(mediaKey, result);
-  res.json({ ...result, isFavorite });
+  const [mediaResponse, castResponse] = await Promise.all([
+    mediaRequest,
+    castRequest,
+  ]);
+
+  if (!mediaResponse.data || !castResponse.data)
+    return next(new Error('error fetching data'));
+
+  const mediaResult = MovieHandler.mapMediaObject(
+    mediaResponse.data,
+    mediaType
+  );
+
+  const castResult = MovieHandler.transformCastResponse({
+    response: castResponse,
+  });
+  res.json({ ...mediaResult, cast: castResult, isFavorite });
 };
 
 /**
@@ -64,7 +75,7 @@ module.exports.searchByTitle = async (req, res, next) => {
   if (!response.data || !response.data.results)
     return next(new Error('error fetching data'));
 
-  const results = MovieHandler.transformResponse({ response });
+  const results = MovieHandler.transformMediaResponse({ response });
   res.json(results);
 };
 
@@ -97,7 +108,7 @@ module.exports.getPopular = async (req, res, next) => {
   if (!response.data || !response.data.results)
     return next(new Error('error fetching data'));
 
-  const results = MovieHandler.transformResponse({
+  const results = MovieHandler.transformMediaResponse({
     mediaType,
     response,
     limit,
@@ -139,7 +150,7 @@ module.exports.getSimilar = async (req, res, next) => {
   if (!response.data || !response.data.results)
     return next(new Error('error fetching data'));
 
-  const results = MovieHandler.transformResponse({
+  const results = MovieHandler.transformMediaResponse({
     mediaType,
     response,
     limit,
@@ -181,7 +192,7 @@ module.exports.getRecommended = async (req, res, next) => {
   if (!response.data || !response.data.results)
     return next(new Error('error fetching data'));
 
-  const results = MovieHandler.transformResponse({
+  const results = MovieHandler.transformMediaResponse({
     mediaType,
     response,
     limit,
