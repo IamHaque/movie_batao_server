@@ -3,10 +3,7 @@ const Schema = mongoose.Schema;
 
 const favoriteSchema = new Schema(
   {
-    mediaId: {
-      type: Number,
-      unique: true,
-    },
+    mediaId: Number,
     mediaType: String,
     watched: { type: Boolean, default: false },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

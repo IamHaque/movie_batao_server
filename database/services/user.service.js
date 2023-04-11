@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/user.model');
 
 module.exports.getById = async (_id) => {
@@ -33,10 +34,20 @@ module.exports.getFavorite = async (_id, mediaId) => {
 };
 
 module.exports.getAllFavorites = async (_id) => {
-  const user = await User.findById(_id).select('favorites -_id').populate({
+  const userPromise = User.findById(_id).select('favorites -_id').populate({
     path: 'favorites',
   });
-  return user?._doc?.favorites;
+
+  const totalPromise = User.aggregate()
+    .match({ _id: getId(_id) })
+    .project({
+      favorites: { $size: '$favorites' },
+    });
+
+  const [user, favorites] = await Promise.all([userPromise, totalPromise]);
+  const favoriteCount = favorites.length > 0 ? favorites[0]?.favorites : -1;
+
+  return { total: favoriteCount, favorites: user?._doc?.favorites };
 };
 
 module.exports.addFavorite = async (_id, favoriteId) => {
@@ -82,3 +93,17 @@ module.exports.addCollection = async (_id, collectionId) => {
   ).select('collections -_id');
   return user?._doc?.collections;
 };
+
+function getId(_id) {
+  return new mongoose.Types.ObjectId(_id);
+}
+
+function getQueryFilters(filters) {
+  let { skip, limit, sortBy } = filters;
+
+  skip = skip ? Number(skip) : 0;
+  limit = limit ? Number(limit) : 10;
+  sortBy = sortBy || { createdAt: -1 };
+
+  return { skip, limit, sortBy };
+}

@@ -11,39 +11,50 @@ const CacheHandler = require('../handlers/cache.handler');
  * Returns favorite media for user
  */
 module.exports.getFavorites = async (req, res, next) => {
-  const favorites = await UserService.getAllFavorites(req?.user?._id);
+  const skip = Number(req.query.skip) || 0;
+  const limit = Number(req.query.limit) || 0;
+
+  let { total, favorites } = await UserService.getAllFavorites(req?.user?._id);
   if (!favorites) return next(new Error('error fetching favorite medias'));
 
+  favorites = favorites.sort((a, b) => b.createdAt - a.createdAt);
+  if (limit > 0) favorites = favorites.slice(skip, skip + limit);
+
   const favoriteMedias = [];
+  const mediaDataPromises = [];
 
   for (let favorite of favorites) {
-    try {
-      const { _id, mediaId, mediaType, watched, updatedAt } = favorite;
-      let media = {
-        id: _id,
-        watched: watched,
-        updatedAt: updatedAt,
-      };
-
-      let mediaKey = 'media_' + mediaType + '_' + mediaId;
-
-      let cachedResults = await CacheHandler.getCache(mediaKey);
-      if (cachedResults) {
-        favoriteMedias.push({ ...cachedResults, ...media });
-        continue;
-      }
-
-      const response = await axios({
+    mediaDataPromises.push(
+      axios({
         method: 'get',
-        url: MovieHandler.searchByIdEndpoint(mediaId, mediaType),
-      });
+        url: MovieHandler.searchByIdEndpoint(
+          favorite.mediaId,
+          favorite.mediaType
+        ),
+      })
+    );
+  }
 
+  const allResponses = await Promise.all(mediaDataPromises);
+  for (let response of allResponses) {
+    try {
+      const mediaId = response.data.id;
+      const mediaType = response?.request?.path?.includes('tv')
+        ? 'tv'
+        : 'movie';
       const result = MovieHandler.mapMediaObject(response.data, mediaType);
-      await CacheHandler.setCache(mediaKey, result);
-      favoriteMedias.push({ ...result, ...media });
-    } catch (e) {
-      console.log('GET Error:', e.message);
-    }
+
+      const { _id, watched, updatedAt } = favorites.find(
+        (el) => el.mediaId === mediaId
+      );
+
+      favoriteMedias.push({
+        _id,
+        watched,
+        updatedAt,
+        ...result,
+      });
+    } catch (e) {}
   }
 
   res.send(favoriteMedias);
