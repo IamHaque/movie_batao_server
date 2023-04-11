@@ -86,7 +86,7 @@ const mapMediaObject = (media, mediaType) => {
   };
 };
 
-const transformCastResponse = ({ response, limit = 10 }) => {
+const transformCastResponse = ({ response, limit = 12 }) => {
   return response.data.cast
     .map((cast) => mapCastObject(cast))
     .filter(
