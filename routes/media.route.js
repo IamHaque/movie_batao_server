@@ -140,6 +140,9 @@ router.get('/recommended', auth, MovieController.getRecommended);
  *             schema:
  *               type: object
  *               $ref: '#/definitions/MediaList'
+ *               properties:
+ *                 isFavorite:
+ *                   $ref: '#/definitions/favorite-isFavorite'
  *       500:
  *         description: Server error
  *         content:

@@ -4,6 +4,8 @@ const Logger = require('../middlewares/logger.middleware');
 const MovieHandler = require('../handlers/media.handler');
 const CacheHandler = require('../handlers/cache.handler');
 
+const FavoriteService = require('../database/services/favorite.service');
+
 /**
  * Returns media object against passed ID
  *
@@ -20,11 +22,15 @@ module.exports.searchById = async (req, res, next) => {
   if (!['tv', 'movie'].includes(mediaType))
     return next(new Error('invalid mediaType'));
 
+  const { _id } = req?.user;
+  const media = await FavoriteService.find({ mediaId, user: _id });
+  const isFavorite = !!media;
+
   let mediaKey = 'media_' + mediaType;
   if (mediaId) mediaKey += '_' + mediaId;
 
   let cachedResults = await CacheHandler.getCache(mediaKey);
-  if (cachedResults) return res.json(cachedResults);
+  if (cachedResults) return res.json({ ...cachedResults, isFavorite });
 
   const response = await axios({
     method: 'get',
@@ -35,7 +41,7 @@ module.exports.searchById = async (req, res, next) => {
 
   const result = MovieHandler.mapMediaObject(response.data, mediaType);
   await CacheHandler.setCache(mediaKey, result);
-  res.json(result);
+  res.json({ ...result, isFavorite });
 };
 
 /**

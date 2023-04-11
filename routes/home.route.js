@@ -47,6 +47,10 @@ const router = express.Router();
  *     type: string
  *     example: movie
  *     description: media type
+ *   watched:
+ *     type: boolean
+ *     example: false
+ *     description: media watched
  *   language:
  *     type: string
  *     example: en-US
@@ -90,6 +94,11 @@ const router = express.Router();
  *     type: boolean
  *     example: false
  *     description: collection visibility
+ *
+ *   favorite-isFavorite:
+ *     type: boolean
+ *     example: false
+ *     description: media is user favorite or not
  *
  */
 
@@ -162,23 +171,12 @@ const router = express.Router();
  *
  *   FavoriteList:
  *     properties:
- *       _id:
+ *       id:
  *         $ref: '#/definitions/db-id'
- *       email:
- *         $ref: '#/definitions/email'
- *       username:
- *         $ref: '#/definitions/username'
- *       providerId:
- *         $ref: '#/definitions/providerId'
- *       provider:
- *         $ref: '#/definitions/provider'
- *       createdAt:
- *         $ref: '#/definitions/db-timestamp'
+ *       watched:
+ *         $ref: '#/definitions/watched'
  *       updatedAt:
  *         $ref: '#/definitions/db-timestamp'
- *       token:
- *         type: string
- *         example: eyJhbGciOiJIUzI1
  *
  *   CollectionList:
  *     properties:
@@ -194,6 +192,27 @@ const router = express.Router();
  *         $ref: '#/definitions/db-timestamp'
  *       updatedAt:
  *         $ref: '#/definitions/db-timestamp'
+ *       medias:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/CollectionListMedia'
+ *       members:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/db-id'
+ *
+ *   CollectionListMedia:
+ *     properties:
+ *       _id:
+ *         $ref: '#/definitions/db-id'
+ *       mediaId:
+ *         $ref: '#/definitions/mediaId'
+ *       mediaType:
+ *         $ref: '#/definitions/mediaType'
+ *       watchedBy:
+ *         type: array
+ *         items:
+ *           $ref: '#/definitions/db-id'
  *
  *   FavoriteStatus:
  *     properties:
@@ -204,8 +223,7 @@ const router = express.Router();
  *         type: string
  *         example: movie
  *       isFavorite:
- *         type: boolean
- *         example: false
+ *         $ref: '#/definitions/favorite-isFavorite'
  *
  *   CollectionStatus:
  *     properties:
