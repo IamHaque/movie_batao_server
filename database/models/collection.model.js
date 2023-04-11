@@ -2,17 +2,21 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const CollectionMediaSchema = mongoose.Schema({
-  mediaId: {
-    type: Number,
-    unique: true,
-  },
+  mediaId: Number,
   mediaType: String,
   watchedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 });
 
 const collectionSchema = new Schema(
   {
+    name: {
+      trim: true,
+      type: String,
+      required: 'Collection name is required',
+    },
     medias: [{ type: CollectionMediaSchema }],
+    isPublic: { type: Boolean, default: false },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
   {

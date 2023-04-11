@@ -4,15 +4,18 @@ const Logger = require('./middlewares/logger.middleware');
 require('dotenv').config();
 
 // connect to mongoDB
-require('./database/db');
+const MongoConnection = require('./database/db');
+MongoConnection.once('open', startServer);
 
-// connect to redis
-const CacheHandler = require('./handlers/cache.handler');
-(async () => await CacheHandler.client.connect())();
+function startServer() {
+  // connect to redis
+  const CacheHandler = require('./handlers/cache.handler');
+  (async () => await CacheHandler.client.connect())();
 
-// start the server
-const app = require('./app');
-const PORT = process.env.PORT || 3100;
-const server = app.listen(PORT, () => {
-  Logger.log(`Server started at ${process.env.BASE_URL}:${PORT}`);
-});
+  // start the server
+  const app = require('./app');
+  const PORT = process.env.PORT || 3100;
+  app.listen(PORT, () => {
+    Logger.log(`Server started at ${process.env.BASE_URL}:${PORT}`);
+  });
+}

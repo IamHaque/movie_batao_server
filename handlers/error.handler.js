@@ -22,7 +22,7 @@ exports.catchErrors = (fn) => {
       }
 
       if (err.name === 'MongoServerError' && err.message.startsWith('E11000')) {
-        error.message = 'user already exists';
+        error.message = 'already exists in DB';
       }
 
       next(error);

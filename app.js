@@ -29,8 +29,11 @@ app.use(express.static(__dirname + '/public'));
 app.use(Logger.loggerMiddleware);
 
 // Handle routes
+app.use('/', require('./routes/home.route'));
 app.use('/', require('./routes/media.route'));
 app.use('/user', require('./routes/user.route'));
+app.use('/favorite', require('./routes/favorite.route'));
+app.use('/collection', require('./routes/collection.route'));
 app.use(
   '/docs',
   swaggerUI.serve,

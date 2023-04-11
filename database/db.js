@@ -42,3 +42,5 @@ connectToDB();
 require('./models/user.model');
 require('./models/favorite.model');
 require('./models/collection.model');
+
+module.exports = mongoose.connection;
