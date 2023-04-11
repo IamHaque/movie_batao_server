@@ -1,5 +1,7 @@
-const UserService = require('../database/services/user.service');
+const Logger = require('../middlewares/logger.middleware');
+
 const JwtHandler = require('../handlers/jwt.handler');
+const UserService = require('../database/services/user.service');
 
 /**
  * Login | Returns the user object
@@ -12,13 +14,13 @@ module.exports.login = async (req, res, next) => {
   if (!email) next(new Error('email is required'));
   if (!providerId) next(new Error('providerId is required'));
 
-  const user = await UserService.readByEmail(email);
+  const user = await UserService.get({ email });
   if (!user) return next(new Error('error fetching user'));
 
   if (user?.providerId !== providerId)
     next(new Error('invalid user credentials'));
 
-  const token = JwtHandler.generateToken({ providerId, email });
+  const token = JwtHandler.generateToken({ _id: user._id, providerId, email });
   user.token = token;
 
   delete user.collections;
@@ -49,7 +51,7 @@ module.exports.register = async (req, res, next) => {
   });
   if (!user) return next(new Error('error registering user'));
 
-  const token = JwtHandler.generateToken({ providerId, email });
+  const token = JwtHandler.generateToken({ _id: user._id, providerId, email });
   user.token = token;
 
   delete user.collections;

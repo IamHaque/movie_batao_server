@@ -1,4 +1,6 @@
 const axios = require('axios');
+
+const Logger = require('../middlewares/logger.middleware');
 const MovieHandler = require('../handlers/media.handler');
 const CacheHandler = require('../handlers/cache.handler');
 const UserService = require('../database/services/user.service');
@@ -193,14 +195,9 @@ module.exports.getRecommended = async (req, res, next) => {
 
 /**
  * Returns favorite media for user
- *
- * @requires {email} email: user email
  */
 module.exports.getFavorites = async (req, res, next) => {
-  const { email } = req.body;
-  if (!email) next(new Error('email is required'));
-
-  const favorites = await UserService.getAllFavorites(email);
+  const favorites = await UserService.getAllFavorites(req?.user?._id);
   if (!favorites) return next(new Error('error fetching favorite medias'));
 
   const favoriteMedias = [];
@@ -241,47 +238,46 @@ module.exports.getFavorites = async (req, res, next) => {
 /**
  * Toggles favorite flag of the passed media
  *
- * @requires {email} email: user email
  * @requires {mediaId} mediaId: id of the passed media
  * @requires {mediaType} mediaType: type of the passed media (tv or movie)
  */
 module.exports.toggleFavorite = async (req, res, next) => {
-  const { email, mediaId, mediaType } = req.body;
-  if (!email) next(new Error('email is required'));
+  const { mediaId, mediaType } = req.query;
   if (!mediaId) return next(new Error('mediaId is required'));
   if (!mediaType) return next(new Error('mediaType is required'));
   if (!['tv', 'movie'].includes(mediaType))
     return next(new Error('invalid mediaType'));
 
-  const media = await FavoriteService.find({ mediaId, user: email });
+  const { _id } = req?.user;
+  const media = await FavoriteService.find({ mediaId, user: _id });
 
   if (!media) {
     const createdMedia = await FavoriteService.create({
       mediaId,
       mediaType,
-      user: email,
+      user: _id,
     });
-    await UserService.addFavoriteMedia(email, createdMedia?._id);
+    await UserService.addFavoriteMedia(_id, createdMedia?._id);
     return res.send({ mediaId, mediaType, isFavorite: true });
   }
 
   await FavoriteService.remove(media?._id);
-  await UserService.removeFavoriteMedia(email, media?._id);
+  await UserService.removeFavoriteMedia(_id, media?._id);
   res.send({ mediaId, mediaType, isFavorite: false });
 };
 
 /**
  * Returns whether media is favorite or not
  *
- * @requires {email} email: user email
  * @requires {mediaId} mediaId: id of the passed media
  */
 module.exports.isFavorite = async (req, res, next) => {
-  const { email, mediaId } = req.body;
-  if (!email) next(new Error('email is required'));
+  const { mediaId } = req.query;
   if (!mediaId) return next(new Error('mediaId is required'));
 
-  const media = await FavoriteService.find({ mediaId, user: email });
+  const { _id } = req?.user;
+  const media = await FavoriteService.find({ mediaId, user: _id });
+
   const isFavorite = !!media;
   res.send({ mediaId, isFavorite });
 };

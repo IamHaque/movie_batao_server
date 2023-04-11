@@ -1,15 +1,17 @@
 const redis = require('redis');
 
+const Logger = require('../middlewares/logger.middleware');
+
 const client = redis.createClient({
   url: process.env.REDIS_CONNECTION_STRING,
 });
 
-client.on('error', (error) =>
-  console.error('Error Connecting to the Redis Cluster', error.message)
+client.on('error', (err) =>
+  Logger.logError(`Redis | Connection Failed | ${err.message}`)
 );
 
 client.on('connect', () => {
-  console.log('Successfully connected to the Redis cluster!');
+  Logger.log(`Redis | Connected`);
 });
 
 const getCache = async (key) => {
@@ -19,7 +21,7 @@ const getCache = async (key) => {
 
     return JSON.parse(value);
   } catch (e) {
-    console.log('Get Error:', e.message);
+    Logger.logError(`Redis | Failed to GET cache data`);
   }
 };
 
@@ -29,7 +31,7 @@ const setCache = async (key, value) => {
       EX: 60 * 60 * 24,
     });
   } catch (e) {
-    console.log('Set Error:', e.message);
+    Logger.logError(`Redis | Failed to SET cache data`);
   }
 };
 

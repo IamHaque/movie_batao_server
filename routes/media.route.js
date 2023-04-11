@@ -143,24 +143,24 @@ const { auth } = require('../middlewares/auth.middleware');
 /**
  * @swagger
  * parameters:
- *   mediaIdParam:
+ *   mediaIdQueryParam:
  *     in: query
  *     name: mediaId
  *     schema:
  *       $ref: '#/definitions/mediaId'
  *     required: true
- *   mediaTypeParam:
+ *   mediaTypeQueryParam:
  *     in: query
  *     name: mediaType
  *     schema:
  *       $ref: '#/definitions/mediaType'
  *     required: true
- *   languageParam:
+ *   languageQueryParam:
  *     in: query
  *     name: language
  *     schema:
  *       $ref: '#/definitions/language'
- *   limitParam:
+ *   limitQueryParam:
  *     in: query
  *     name: limit
  *     schema:
@@ -186,9 +186,9 @@ router.get('/', MovieController.greet);
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: '#/parameters/mediaTypeParam'
- *       - $ref: '#/parameters/languageParam'
- *       - $ref: '#/parameters/limitParam'
+ *       - $ref: '#/parameters/mediaTypeQueryParam'
+ *       - $ref: '#/parameters/languageQueryParam'
+ *       - $ref: '#/parameters/limitQueryParam'
  *       - $ref: '#/parameters/jwtToken'
  *     responses:
  *       200:
@@ -220,10 +220,10 @@ router.get('/popular', auth, MovieController.getPopular);
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: '#/parameters/mediaIdParam'
- *       - $ref: '#/parameters/mediaTypeParam'
- *       - $ref: '#/parameters/languageParam'
- *       - $ref: '#/parameters/limitParam'
+ *       - $ref: '#/parameters/mediaIdQueryParam'
+ *       - $ref: '#/parameters/mediaTypeQueryParam'
+ *       - $ref: '#/parameters/languageQueryParam'
+ *       - $ref: '#/parameters/limitQueryParam'
  *       - $ref: '#/parameters/jwtToken'
  *     responses:
  *       200:
@@ -255,10 +255,10 @@ router.get('/similar', auth, MovieController.getSimilar);
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - $ref: '#/parameters/mediaIdParam'
- *       - $ref: '#/parameters/mediaTypeParam'
- *       - $ref: '#/parameters/languageParam'
- *       - $ref: '#/parameters/limitParam'
+ *       - $ref: '#/parameters/mediaIdQueryParam'
+ *       - $ref: '#/parameters/mediaTypeQueryParam'
+ *       - $ref: '#/parameters/languageQueryParam'
+ *       - $ref: '#/parameters/limitQueryParam'
  *       - $ref: '#/parameters/jwtToken'
  *     responses:
  *       200:
@@ -372,104 +372,8 @@ router.post('/searchByTitle', auth, catchErrors(MovieController.searchByTitle));
 
 /**
  * @swagger
- * /isFavorite:
- *   post:
- *     summary: Retrieve favorite status
- *     description: Returns whether the media is in user favorites or not
- *     tags: [FavoriteMedia]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - $ref: '#/parameters/jwtToken'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - mediaId
- *               - mediaType
- *             properties:
- *               email:
- *                 $ref: '#/definitions/email'
- *               mediaId:
- *                 $ref: '#/definitions/mediaId'
- *     responses:
- *       200:
- *         description: Object containing user data fetched from the database
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               $ref: '#/definitions/FavoriteStatus'
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               $ref: '#/definitions/ServerError'
- *
- */
-router.post('/isFavorite', auth, catchErrors(MovieController.isFavorite));
-
-/**
- * @swagger
- * /toggleFavorite:
- *   post:
- *     summary: Toggles favorite status
- *     description: Returns favorite media status after toggle
- *     tags: [FavoriteMedia]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - $ref: '#/parameters/jwtToken'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *               - mediaId
- *               - mediaType
- *             properties:
- *               email:
- *                 $ref: '#/definitions/email'
- *               mediaId:
- *                 $ref: '#/definitions/mediaId'
- *               mediaType:
- *                 $ref: '#/definitions/mediaType'
- *     responses:
- *       200:
- *         description: Object containing user data fetched from the database
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               $ref: '#/definitions/FavoriteStatus'
- *       500:
- *         description: Server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               $ref: '#/definitions/ServerError'
- *
- */
-router.post(
-  '/toggleFavorite',
-  auth,
-  catchErrors(MovieController.toggleFavorite)
-);
-
-/**
- * @swagger
- * /getFavorites:
- *   post:
+ * /favorite:
+ *   get:
  *     summary: Retrieve favorite medias
  *     description: Returns a list of user's favorite medias
  *     tags: [FavoriteMedia]
@@ -477,17 +381,6 @@ router.post(
  *       - bearerAuth: []
  *     parameters:
  *       - $ref: '#/parameters/jwtToken'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - email
- *             properties:
- *               email:
- *                 $ref: '#/definitions/email'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -509,6 +402,73 @@ router.post(
  *               $ref: '#/definitions/ServerError'
  *
  */
-router.post('/getFavorites', auth, catchErrors(MovieController.getFavorites));
+router.get('/favorite', auth, catchErrors(MovieController.getFavorites));
+
+/**
+ * @swagger
+ * /favorite/check:
+ *   get:
+ *     summary: Retrieve favorite status
+ *     description: Returns whether the media is in user favorites or not
+ *     tags: [FavoriteMedia]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/parameters/jwtToken'
+ *       - $ref: '#/parameters/mediaIdQueryParam'
+ *     responses:
+ *       200:
+ *         description: Object containing user data fetched from the database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/FavoriteStatus'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.get('/favorite/check', auth, catchErrors(MovieController.isFavorite));
+
+/**
+ * @swagger
+ * /favorite/toggle:
+ *   get:
+ *     summary: Toggles favorite status
+ *     description: Returns favorite media status after toggle
+ *     tags: [FavoriteMedia]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - $ref: '#/parameters/jwtToken'
+ *       - $ref: '#/parameters/mediaIdQueryParam'
+ *       - $ref: '#/parameters/mediaTypeQueryParam'
+ *     responses:
+ *       200:
+ *         description: Object containing user data fetched from the database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/FavoriteStatus'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.get(
+  '/favorite/toggle',
+  auth,
+  catchErrors(MovieController.toggleFavorite)
+);
 
 module.exports = router;

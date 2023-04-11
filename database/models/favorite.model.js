@@ -7,9 +7,9 @@ const favoriteSchema = new Schema(
       type: Number,
       unique: true,
     },
-    user: String,
     mediaType: String,
     watched: { type: Boolean, default: false },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   },
   {
     timestamps: true,

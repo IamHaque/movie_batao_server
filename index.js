@@ -1,3 +1,5 @@
+const Logger = require('./middlewares/logger.middleware');
+
 // import environmental variables
 require('dotenv').config();
 
@@ -12,5 +14,5 @@ const CacheHandler = require('./handlers/cache.handler');
 const app = require('./app');
 const PORT = process.env.PORT || 3100;
 const server = app.listen(PORT, () => {
-  console.log(`Server started at ${process.env.BASE_URL}:${PORT}`);
+  Logger.log(`Server started at ${process.env.BASE_URL}:${PORT}`);
 });

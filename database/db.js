@@ -1,6 +1,8 @@
 // Import the mongoose module
 const mongoose = require('mongoose');
 
+const Logger = require('../middlewares/logger.middleware');
+
 // Set `strictQuery: false` to globally opt into filtering by properties that aren't in the schema
 // Included because it removes preparatory warnings for Mongoose 7.
 // See: https://mongoosejs.com/docs/migrating_to_6.html#strictquery-is-removed-and-replaced-by-strict
@@ -11,7 +13,7 @@ const CONNECTION_STRING = process.env.MONGODB_CONNECTION_STRING;
 
 // connects to mongodb database
 const connectToDB = () => {
-  console.log('Connecting to MongoDB');
+  Logger.log(`MongoDB | Connecting`);
 
   mongoose.connect(CONNECTION_STRING, {
     useUnifiedTopology: true,
@@ -20,17 +22,17 @@ const connectToDB = () => {
   });
 };
 
-mongoose.connection.on('error', (error) => {
-  console.log(`MongoDB Error: ${error}`);
+mongoose.connection.on('error', (err) => {
+  Logger.logError(`MongoDB | ${err.message}`);
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB disconnected');
+  Logger.logInfo(`MongoDB | Disconnected`);
   connectToDB();
 });
 
 mongoose.connection.once('open', () => {
-  console.log('MongoDB connection established successfully');
+  Logger.log(`MongoDB | Connected`);
 });
 
 // connect to mongodb database
