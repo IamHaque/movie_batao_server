@@ -48,8 +48,7 @@ const transformMediaResponse = ({ response, mediaType, limit = 10 }) => {
         !!posterPath &&
         !!originalTitle
     )
-    .slice(0, limit)
-    .sort((a, b) => b.popularity - a.popularity);
+    .slice(0, limit);
 };
 
 const mapMediaObject = (media, mediaType) => {
