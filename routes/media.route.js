@@ -145,6 +145,8 @@ router.get('/recommended', auth, MovieController.getRecommended);
  *                   $ref: '#/definitions/castArray'
  *                 isFavorite:
  *                   $ref: '#/definitions/favorite-isFavorite'
+ *                 watched:
+ *                   $ref: '#/definitions/watched'
  *       500:
  *         description: Server error
  *         content:

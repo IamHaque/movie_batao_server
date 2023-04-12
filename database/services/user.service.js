@@ -94,6 +94,25 @@ module.exports.addCollection = async (_id, collectionId) => {
   return user?._doc?.collections;
 };
 
+module.exports.removeCollection = async (_id, collectionId) => {
+  const user = await User.findByIdAndUpdate(
+    _id,
+    { $pull: { collections: collectionId } },
+    {
+      new: true,
+    }
+  ).select('collections -_id');
+  return user?._doc?.collections;
+};
+
+module.exports.removeCollectionFromAllMembers = async (ids, collectionId) => {
+  const { modifiedCount } = await User.updateMany(
+    { _id: { $in: ids } },
+    { $pull: { collections: collectionId } }
+  );
+  return modifiedCount > 0;
+};
+
 function getId(_id) {
   return new mongoose.Types.ObjectId(_id);
 }

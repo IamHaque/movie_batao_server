@@ -23,7 +23,7 @@ const { auth } = require('../middlewares/auth.middleware');
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/definitions/CollectionList'
+ *                 $ref: '#/definitions/CollectionsList'
  *
  *       500:
  *         description: Server error
@@ -35,6 +35,46 @@ const { auth } = require('../middlewares/auth.middleware');
  *
  */
 router.get('/', auth, catchErrors(CollectionController.getCollections));
+
+/**
+ * @swagger
+ * /collection/getById:
+ *   post:
+ *     summary: Get collection
+ *     description: Returns collection by ID
+ *     tags: [Collection]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - collectionId
+ *             properties:
+ *               collectionId:
+ *                 $ref: '#/definitions/collection-id'
+ *     responses:
+ *       200:
+ *         description: Data of the created collection
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/CollectionList'
+ *
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.post('/getById', auth, catchErrors(CollectionController.getCollection));
 
 /**
  * @swagger
@@ -65,7 +105,7 @@ router.get('/', auth, catchErrors(CollectionController.getCollections));
  *           application/json:
  *             schema:
  *               type: object
- *               $ref: '#/definitions/CollectionList'
+ *               $ref: '#/definitions/CollectionsList'
  *       500:
  *         description: Server error
  *         content:
@@ -79,6 +119,92 @@ router.post(
   '/create',
   auth,
   catchErrors(CollectionController.createCollection)
+);
+
+/**
+ * @swagger
+ * /collection/remove:
+ *   post:
+ *     summary: Remove collection
+ *     description: Removes a created collection
+ *     tags: [Collection]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - collectionId
+ *             properties:
+ *               collectionId:
+ *                 $ref: '#/definitions/collection-id'
+ *     responses:
+ *       200:
+ *         description: Status of the operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/CollectionStatus'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.post(
+  '/remove',
+  auth,
+  catchErrors(CollectionController.removeCollection)
+);
+
+/**
+ * @swagger
+ * /collection/isEmpty:
+ *   post:
+ *     summary: Check if empty collection
+ *     description: Checks if collection is empty or not
+ *     tags: [Collection]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - collectionId
+ *             properties:
+ *               collectionId:
+ *                 $ref: '#/definitions/collection-id'
+ *     responses:
+ *       200:
+ *         description: Status of the operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/CollectionStatus'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.post(
+  '/isEmpty',
+  auth,
+  catchErrors(CollectionController.isEmptyCollection)
 );
 
 /**
@@ -97,19 +223,19 @@ router.post(
  *           schema:
  *             type: object
  *             required:
- *               - id
  *               - mediaId
  *               - mediaType
+ *               - collectionId
  *             properties:
  *               mediaId:
  *                 $ref: '#/definitions/mediaId'
  *               mediaType:
  *                 $ref: '#/definitions/mediaType'
- *               id:
+ *               collectionId:
  *                 $ref: '#/definitions/collection-id'
  *     responses:
  *       200:
- *         description: Data of the created collection
+ *         description: Status of the operation
  *         content:
  *           application/json:
  *             schema:
@@ -142,16 +268,16 @@ router.post('/addMedia', auth, catchErrors(CollectionController.addMedia));
  *           schema:
  *             type: object
  *             required:
- *               - id
  *               - mediaId
+ *               - collectionId
  *             properties:
  *               mediaId:
  *                 $ref: '#/definitions/mediaId'
- *               id:
+ *               collectionId:
  *                 $ref: '#/definitions/collection-id'
  *     responses:
  *       200:
- *         description: Data of the created collection
+ *         description: Status of the operation
  *         content:
  *           application/json:
  *             schema:
@@ -171,5 +297,78 @@ router.post(
   auth,
   catchErrors(CollectionController.removeMedia)
 );
+
+/**
+ * @swagger
+ * /collection/join:
+ *   post:
+ *     summary: Join a collection
+ *     description: Adds user to an existing collection
+ *     tags: [Collection]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             $ref: '#/definitions/CollectionList'
+ *     responses:
+ *       200:
+ *         description: Status of the operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/CollectionStatus'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.post('/join', auth, catchErrors(CollectionController.joinCollection));
+/**
+ * @swagger
+ * /collection/leave:
+ *   post:
+ *     summary: Leave a collection
+ *     description: Removes user from a joined collection
+ *     tags: [Collection]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - collectionId
+ *             properties:
+ *               collectionId:
+ *                 $ref: '#/definitions/collection-id'
+ *     responses:
+ *       200:
+ *         description: Status of the operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/CollectionStatus'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.post('/leave', auth, catchErrors(CollectionController.leaveCollection));
 
 module.exports = router;

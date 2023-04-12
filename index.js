@@ -9,8 +9,8 @@ MongoConnection.once('open', startServer);
 
 function startServer() {
   // connect to redis
-  const CacheHandler = require('./handlers/cache.handler');
-  (async () => await CacheHandler.client.connect())();
+  // const CacheHandler = require('./handlers/cache.handler');
+  // (async () => await CacheHandler.client.connect())();
 
   // start the server
   const app = require('./app');

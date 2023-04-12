@@ -40,7 +40,7 @@ const router = express.Router();
  *     description: DB timestamp
  *
  *   mediaId:
- *     type: string
+ *     type: number
  *     example: 603692
  *     description: media ID
  *   mediaType:
@@ -94,6 +94,23 @@ const router = express.Router();
  *     type: boolean
  *     example: false
  *     description: collection visibility
+ *   collection-medias:
+ *     type: array
+ *     items:
+ *       $ref: '#/definitions/CollectionListMedia'
+ *     description: medias in collection
+ *   collection-members:
+ *     type: array
+ *     items:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           $ref: '#/definitions/db-id'
+ *         email:
+ *           $ref: '#/definitions/email'
+ *         username:
+ *           $ref: '#/definitions/username'
+ *     description: members in collection
  *
  *   favorite-isFavorite:
  *     type: boolean
@@ -114,8 +131,9 @@ const router = express.Router();
  *   MediaList:
  *     properties:
  *       mediaId:
- *         type: number
- *         example: 669223
+ *         $ref: '#/definitions/mediaId'
+ *       mediaType:
+ *         $ref: '#/definitions/mediaType'
  *       adult:
  *         type: boolean
  *         example: false
@@ -134,9 +152,6 @@ const router = express.Router();
  *       originalLanguage:
  *         type: string
  *         example: en
- *       mediaType:
- *         type: string
- *         example: movie
  *       rating:
  *         type: number
  *         example: 7.2
@@ -199,6 +214,29 @@ const router = express.Router();
  *       updatedAt:
  *         $ref: '#/definitions/db-timestamp'
  *
+ *   CollectionsList:
+ *     properties:
+ *       _id:
+ *         $ref: '#/definitions/db-id'
+ *       owner:
+ *         $ref: '#/definitions/db-id'
+ *       name:
+ *         $ref: '#/definitions/collection-name'
+ *       isPublic:
+ *         $ref: '#/definitions/collection-isPublic'
+ *       createdAt:
+ *         $ref: '#/definitions/db-timestamp'
+ *       updatedAt:
+ *         $ref: '#/definitions/db-timestamp'
+ *       mediaCount:
+ *         type: number
+ *         example: 3
+ *         description: count of medias in collection
+ *       memberCount:
+ *         type: number
+ *         example: 2
+ *         description: count of members in collection
+ *
  *   CollectionList:
  *     properties:
  *       _id:
@@ -214,13 +252,9 @@ const router = express.Router();
  *       updatedAt:
  *         $ref: '#/definitions/db-timestamp'
  *       medias:
- *         type: array
- *         items:
- *           $ref: '#/definitions/CollectionListMedia'
+ *         $ref: '#/definitions/collection-medias'
  *       members:
- *         type: array
- *         items:
- *           $ref: '#/definitions/db-id'
+ *         $ref: '#/definitions/collection-members'
  *
  *   CollectionListMedia:
  *     properties:
@@ -238,11 +272,9 @@ const router = express.Router();
  *   FavoriteStatus:
  *     properties:
  *       mediaId:
- *         type: number
- *         example: 669223
+ *         $ref: '#/definitions/mediaId'
  *       mediaType:
- *         type: string
- *         example: movie
+ *         $ref: '#/definitions/mediaType'
  *       isFavorite:
  *         $ref: '#/definitions/favorite-isFavorite'
  *

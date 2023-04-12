@@ -5,7 +5,6 @@ const UserService = require('../database/services/user.service');
 const FavoriteService = require('../database/services/favorite.service');
 
 const MovieHandler = require('../handlers/media.handler');
-const CacheHandler = require('../handlers/cache.handler');
 
 /**
  * Returns favorite media for user

@@ -10,13 +10,39 @@ module.exports.find = async (query) => {
   return collection?._doc;
 };
 
-module.exports.remove = async (_id) => {
-  await collection.deleteOne({ _id });
+module.exports.remove = async (query) => {
+  const { deletedCount } = await Collection.deleteOne(query);
+  return deletedCount === 1;
 };
 
-module.exports.addMedia = async (_id, media) => {
+module.exports.checkAndFind = async (_id, memberId) => {
+  const collection = await Collection.findById(_id)
+    .where({
+      $or: [
+        { isPublic: true },
+        { owner: memberId },
+        { members: { $in: [memberId] } },
+      ],
+    })
+    .populate({
+      path: 'members',
+      select: 'email username',
+    });
+
+  return collection?._doc;
+};
+
+module.exports.checkAndAddMedia = async (_id, memberId, media) => {
   const collection = await Collection.updateOne(
-    { _id, 'medias.mediaId': { $ne: media.mediaId } },
+    {
+      _id,
+      'medias.mediaId': { $ne: media.mediaId },
+      $or: [
+        { isPublic: true },
+        { owner: memberId },
+        { members: { $in: [memberId] } },
+      ],
+    },
     { $push: { medias: media } },
     {
       new: true,
@@ -25,7 +51,7 @@ module.exports.addMedia = async (_id, media) => {
   return collection;
 };
 
-module.exports.removeMedia = async (_id, mediaId) => {
+module.exports.checkAndRemoveMedia = async (_id, memberId, mediaId) => {
   const collection = await Collection.updateOne(
     { _id, 'medias.mediaId': { $eq: mediaId } },
     {
@@ -40,4 +66,29 @@ module.exports.removeMedia = async (_id, mediaId) => {
     }
   );
   return collection;
+};
+
+module.exports.addMember = async (_id, memberId) => {
+  const collection = await Collection.findByIdAndUpdate(
+    _id,
+    { $push: { members: memberId } },
+    {
+      new: true,
+    }
+  ).populate({
+    path: 'members',
+    select: 'email username',
+  });
+  return collection?._doc;
+};
+
+module.exports.removeMember = async (_id, memberId) => {
+  const collection = await Collection.findByIdAndUpdate(
+    _id,
+    { $pull: { members: memberId } },
+    {
+      new: true,
+    }
+  );
+  return collection?._doc;
 };

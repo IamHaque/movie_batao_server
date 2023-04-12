@@ -2,7 +2,6 @@ const axios = require('axios');
 const Logger = require('../middlewares/logger.middleware');
 
 const MovieHandler = require('../handlers/media.handler');
-const CacheHandler = require('../handlers/cache.handler');
 
 const FavoriteService = require('../database/services/favorite.service');
 
@@ -25,6 +24,7 @@ module.exports.searchById = async (req, res, next) => {
   const { _id } = req?.user;
   const media = await FavoriteService.find({ mediaId, user: _id });
   const isFavorite = !!media;
+  const watched = media?.watched || false;
 
   const mediaRequest = axios({
     method: 'get',
@@ -52,7 +52,7 @@ module.exports.searchById = async (req, res, next) => {
   const castResult = MovieHandler.transformCastResponse({
     response: castResponse,
   });
-  res.json({ ...mediaResult, cast: castResult, isFavorite });
+  res.json({ ...mediaResult, cast: castResult, isFavorite, watched });
 };
 
 /**
@@ -93,13 +93,6 @@ module.exports.getPopular = async (req, res, next) => {
   if (!['tv', 'movie'].includes(mediaType))
     return next(new Error('invalid mediaType'));
 
-  let popularMediaKey = 'popular_' + mediaType;
-  if (language) popularMediaKey += '_' + language;
-  if (limit) popularMediaKey += '_' + limit;
-
-  let cachedResults = await CacheHandler.getCache(popularMediaKey);
-  if (cachedResults) return res.json(cachedResults);
-
   const response = await axios({
     method: 'get',
     url: MovieHandler.getPopularEndpoint(mediaType, language),
@@ -114,7 +107,6 @@ module.exports.getPopular = async (req, res, next) => {
     limit,
   });
 
-  await CacheHandler.setCache(popularMediaKey, results);
   res.json(results);
 };
 
@@ -135,13 +127,6 @@ module.exports.getSimilar = async (req, res, next) => {
   if (!['tv', 'movie'].includes(mediaType))
     return next(new Error('invalid mediaType'));
 
-  let similarMediaKey = 'similar_' + mediaType + '_' + mediaId;
-  if (language) similarMediaKey += '_' + language;
-  if (limit) similarMediaKey += '_' + limit;
-
-  let cachedResults = await CacheHandler.getCache(similarMediaKey);
-  if (cachedResults) return res.json(cachedResults);
-
   const response = await axios({
     method: 'get',
     url: MovieHandler.getSimilarEndpoint(mediaId, mediaType, language),
@@ -156,7 +141,6 @@ module.exports.getSimilar = async (req, res, next) => {
     limit,
   });
 
-  await CacheHandler.setCache(similarMediaKey, results);
   res.json(results);
 };
 
@@ -177,13 +161,6 @@ module.exports.getRecommended = async (req, res, next) => {
   if (!['tv', 'movie'].includes(mediaType))
     return next(new Error('invalid mediaType'));
 
-  let recommendedMediaKey = 'recommended_' + mediaType + '_' + mediaId;
-  if (language) recommendedMediaKey += '_' + language;
-  if (limit) recommendedMediaKey += '_' + limit;
-
-  let cachedResults = await CacheHandler.getCache(recommendedMediaKey);
-  if (cachedResults) return res.json(cachedResults);
-
   const response = await axios({
     method: 'get',
     url: MovieHandler.getRecommendedEndpoint(mediaId, mediaType, language),
@@ -198,6 +175,5 @@ module.exports.getRecommended = async (req, res, next) => {
     limit,
   });
 
-  await CacheHandler.setCache(recommendedMediaKey, results);
   res.json(results);
 };
