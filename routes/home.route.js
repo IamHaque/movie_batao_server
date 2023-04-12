@@ -83,6 +83,10 @@ const router = express.Router();
  *     type: string
  *     example: google
  *     description: user provider
+ *   category:
+ *     type: string
+ *     example: trending
+ *     description: media category
  *
  *   collection-id:
  *     $ref: '#/definitions/db-id'
@@ -320,6 +324,12 @@ const router = express.Router();
  *     name: limit
  *     schema:
  *       $ref: '#/definitions/limit'
+ *   categoryQueryParam:
+ *     in: path
+ *     name: category
+ *     schema:
+ *       $ref: '#/definitions/category'
+ *     required: true
  *
  */
 

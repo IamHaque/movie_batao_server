@@ -5,6 +5,12 @@ const MovieHandler = require('../handlers/media.handler');
 
 const FavoriteService = require('../database/services/favorite.service');
 
+const CATEGORIES = {
+  nowPlaying: 'now_playing',
+  topRated: 'top_rated',
+  trending: 'popular',
+};
+
 /**
  * Returns media object against passed ID
  *
@@ -80,22 +86,30 @@ module.exports.searchByTitle = async (req, res, next) => {
 };
 
 /**
- * Returns a list of popular media
+ * Returns a list of medias of provided category
  *
- * @optional {mediaType} mediaType: type of the searched media (tv or movie)
+ * @required {category} category: category of the medias
+ * @required {mediaType} mediaType: type of the searched media (tv or movie)
  * @optional {language} language: language of the response object
  * @optional {limit} limit: limit the response object
  */
-module.exports.getPopular = async (req, res, next) => {
+module.exports.getByCategory = async (req, res, next) => {
+  const { category } = req.params;
   const { language, limit } = req.query;
   const mediaType = req.query.mediaType || 'movie';
 
   if (!['tv', 'movie'].includes(mediaType))
     return next(new Error('invalid mediaType'));
 
+  if (!CATEGORIES[category]) return next(new Error('invalid category'));
+
   const response = await axios({
     method: 'get',
-    url: MovieHandler.getPopularEndpoint(mediaType, language),
+    url: MovieHandler.getByCategoryEndpoint(
+      CATEGORIES[category],
+      mediaType,
+      language
+    ),
   });
 
   if (!response.data || !response.data.results)

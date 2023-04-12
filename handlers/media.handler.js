@@ -114,8 +114,8 @@ const searchByIdEndpoint = (mediaId, mediaType, language = 'en-US') =>
 const searchByTitleEndpoint = (title, language = 'en-US') =>
   `${TMDB_BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&language=${language}&page=1&include_adult=true&query=${title}`;
 
-const getPopularEndpoint = (mediaType, language = 'en-US') =>
-  `${TMDB_BASE_URL}/${mediaType}/popular?api_key=${TMDB_API_KEY}&language=${language}&page=1`;
+const getByCategoryEndpoint = (category, mediaType, language = 'en-US') =>
+  `${TMDB_BASE_URL}/${mediaType}/${category}?api_key=${TMDB_API_KEY}&language=${language}&page=1`;
 
 const getSimilarEndpoint = (mediaId, mediaType, language = 'en-US') =>
   `${TMDB_BASE_URL}/${mediaType}/${mediaId}/similar?api_key=${TMDB_API_KEY}&language=${language}&page=1`;
@@ -130,9 +130,9 @@ module.exports = {
   mapCastObject,
   mapMediaObject,
   getCastEndpoint,
-  getPopularEndpoint,
   searchByIdEndpoint,
   getSimilarEndpoint,
+  getByCategoryEndpoint,
   searchByTitleEndpoint,
   transformCastResponse,
   transformMediaResponse,

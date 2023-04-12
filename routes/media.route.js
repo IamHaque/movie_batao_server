@@ -8,10 +8,10 @@ const { auth } = require('../middlewares/auth.middleware');
 
 /**
  * @swagger
- * /popular:
+ * /category/{category}:
  *   get:
- *     summary: Get popular medias
- *     description: Returns a list of media matching the provided ID
+ *     summary: Get medias by category
+ *     description: Returns a list of media of provided category
  *     tags: [Media]
  *     security:
  *       - BearerAuth: []
@@ -19,6 +19,7 @@ const { auth } = require('../middlewares/auth.middleware');
  *       - $ref: '#/parameters/mediaTypeQueryParam'
  *       - $ref: '#/parameters/languageQueryParam'
  *       - $ref: '#/parameters/limitQueryParam'
+ *       - $ref: '#/parameters/categoryQueryParam'
  *     responses:
  *       200:
  *         description: Object containing user data fetched from the database
@@ -37,7 +38,7 @@ const { auth } = require('../middlewares/auth.middleware');
  *               $ref: '#/definitions/ServerError'
  *
  */
-router.get('/popular', auth, MovieController.getPopular);
+router.get('/category/:category', auth, MovieController.getByCategory);
 
 /**
  * @swagger
