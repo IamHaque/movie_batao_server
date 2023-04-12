@@ -38,7 +38,7 @@ const GENRES = {
   99: { name: 'Documentary' },
 };
 
-const transformMediaResponse = ({ response, mediaType, limit = 10 }) => {
+const transformMediaResponse = ({ response, mediaType, limit = 15 }) => {
   return response.data.results
     .map((media) => mapMediaObject(media, mediaType))
     .filter(
