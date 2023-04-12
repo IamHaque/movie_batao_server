@@ -6,9 +6,16 @@ const MovieHandler = require('../handlers/media.handler');
 const FavoriteService = require('../database/services/favorite.service');
 
 const CATEGORIES = {
-  nowPlaying: 'now_playing',
-  topRated: 'top_rated',
-  trending: 'popular',
+  movie: {
+    nowPlaying: 'now_playing',
+    topRated: 'top_rated',
+    trending: 'popular',
+  },
+  tv: {
+    nowPlaying: 'on_the_air',
+    topRated: 'top_rated',
+    trending: 'popular',
+  },
 };
 
 /**
@@ -101,15 +108,12 @@ module.exports.getByCategory = async (req, res, next) => {
   if (!['tv', 'movie'].includes(mediaType))
     return next(new Error('invalid mediaType'));
 
-  if (!CATEGORIES[category]) return next(new Error('invalid category'));
+  const categoryValue = CATEGORIES[mediaType][category];
+  if (!categoryValue) return next(new Error('invalid category'));
 
   const response = await axios({
     method: 'get',
-    url: MovieHandler.getByCategoryEndpoint(
-      CATEGORIES[category],
-      mediaType,
-      language
-    ),
+    url: MovieHandler.getByCategoryEndpoint(categoryValue, mediaType, language),
   });
 
   if (!response.data || !response.data.results)

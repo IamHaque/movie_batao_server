@@ -38,7 +38,11 @@ const { auth } = require('../middlewares/auth.middleware');
  *               $ref: '#/definitions/ServerError'
  *
  */
-router.get('/category/:category', auth, MovieController.getByCategory);
+router.get(
+  '/category/:category',
+  auth,
+  catchErrors(MovieController.getByCategory)
+);
 
 /**
  * @swagger

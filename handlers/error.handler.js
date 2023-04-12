@@ -11,7 +11,6 @@ const Logger = require('../middlewares/logger.middleware');
 exports.catchErrors = (fn) => {
   return function (req, res, next) {
     return fn(req, res, next).catch((err) => {
-      console.log(err);
       Logger.logError(`Controller | ${err.message}`);
 
       const error = new Error(err.message);
