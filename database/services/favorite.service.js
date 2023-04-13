@@ -13,3 +13,8 @@ module.exports.find = async (query) => {
 module.exports.remove = async (_id) => {
   await Favorite.deleteOne({ _id });
 };
+
+module.exports.update = async (_id, data) => {
+  const favorite = await Favorite.findByIdAndUpdate(_id, data, { new: true });
+  return favorite;
+};

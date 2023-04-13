@@ -120,6 +120,10 @@ const router = express.Router();
  *     type: boolean
  *     example: false
  *     description: media is user favorite or not
+ *   favorite-isWatched:
+ *     type: boolean
+ *     example: false
+ *     description: media is watched or not
  *
  *   castArray:
  *     type: array
@@ -281,6 +285,13 @@ const router = express.Router();
  *         $ref: '#/definitions/mediaType'
  *       isFavorite:
  *         $ref: '#/definitions/favorite-isFavorite'
+ *
+ *   WatchedStatus:
+ *     properties:
+ *       mediaId:
+ *         $ref: '#/definitions/mediaId'
+ *       isWatched:
+ *         $ref: '#/definitions/favorite-isWatched'
  *
  *   CollectionStatus:
  *     properties:

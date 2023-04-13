@@ -105,3 +105,23 @@ module.exports.isFavorite = async (req, res, next) => {
   const isFavorite = !!media;
   res.send({ mediaId, isFavorite });
 };
+
+/**
+ * Toggles watched status of the passed media
+ *
+ * @requires {mediaId} mediaId: id of the passed media
+ */
+module.exports.toggleWatched = async (req, res, next) => {
+  const { mediaId } = req.query;
+  if (!mediaId) return next(new Error('mediaId is required'));
+
+  const { _id } = req?.user;
+  const media = await FavoriteService.find({ mediaId, user: _id });
+  if (!media) return next(new Error('invalid media'));
+
+  const { watched } = await FavoriteService.update(media?._id, {
+    watched: !media?.watched,
+  });
+
+  res.send({ mediaId, isWatched: watched });
+};

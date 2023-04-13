@@ -99,4 +99,38 @@ router.get('/check', auth, catchErrors(FavoriteController.isFavorite));
  */
 router.get('/toggle', auth, catchErrors(FavoriteController.toggleFavorite));
 
+/**
+ * @swagger
+ * /favorite/toggleWatched:
+ *   get:
+ *     summary: Toggle watched status
+ *     description: Toggles and returns watched status
+ *     tags: [Favorite]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - $ref: '#/parameters/mediaIdQueryParam'
+ *     responses:
+ *       200:
+ *         description: Watched status of the media for user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/WatchedStatus'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.get(
+  '/toggleWatched',
+  auth,
+  catchErrors(FavoriteController.toggleWatched)
+);
+
 module.exports = router;
