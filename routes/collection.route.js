@@ -115,6 +115,51 @@ router.post('/', auth, catchErrors(CollectionController.createCollection));
 /**
  * @swagger
  * /collection/{collectionId}:
+ *   patch:
+ *     summary: Update collection
+ *     description: Updates collection name/visibility
+ *     tags: [Collection]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - $ref: '#/parameters/collectionIdQueryParam'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 $ref: '#/definitions/collection-name'
+ *               isPublic:
+ *                 $ref: '#/definitions/collection-isPublic'
+ *     responses:
+ *       200:
+ *         description: Status of the operation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/CollectionStatus'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/definitions/ServerError'
+ *
+ */
+router.patch(
+  '/:collectionId',
+  auth,
+  catchErrors(CollectionController.updateCollection)
+);
+
+/**
+ * @swagger
+ * /collection/{collectionId}:
  *   delete:
  *     summary: Remove collection
  *     description: Removes a created collection

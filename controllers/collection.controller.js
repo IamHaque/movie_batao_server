@@ -134,6 +134,54 @@ module.exports.isEmptyCollection = async (req, res, next) => {
 };
 
 /**
+ * Updates collection name/visibility
+ *
+ * @optional {name} name: collection name
+ * @optional {isPublic} isPublic: collection visibility
+ * @requires {collectionId} collectionId: collection id
+ */
+module.exports.updateCollection = async (req, res, next) => {
+  const { collectionId } = req.params;
+  if (!collectionId) return next(new Error('collectionId is required'));
+
+  const { name, isPublic } = req.body;
+  if (name === undefined && isPublic === undefined)
+    return next(new Error('no data to update'));
+
+  const { _id } = req?.user;
+  let collection = await CollectionService.find({
+    owner: _id,
+    _id: collectionId,
+  });
+
+  const isUserCollectionOwner = String(_id) === String(collection?.owner);
+  if (!isUserCollectionOwner)
+    return next(new Error('user not collection owner'));
+
+  if (
+    name !== undefined &&
+    isPublic !== undefined &&
+    name === collection.name &&
+    isPublic === collection.isPublic
+  )
+    return next(new Error('no data to update'));
+
+  const updateData = {
+    name: name === undefined ? collection.name : name,
+    isPublic: isPublic === undefined ? collection.isPublic : isPublic,
+  };
+
+  let updateStatus = await CollectionService.checkAndUpdate(
+    collectionId,
+    _id,
+    updateData
+  );
+  if (!updateStatus) return next(new Error('error updating collection'));
+
+  res.send({ success: updateStatus });
+};
+
+/**
  * Removes a collection
  *
  * @requires {collectionId} collectionId: collection id

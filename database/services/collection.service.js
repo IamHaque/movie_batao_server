@@ -68,6 +68,20 @@ module.exports.checkAndRemoveMedia = async (_id, memberId, mediaId) => {
   return collection;
 };
 
+module.exports.checkAndUpdate = async (_id, userId, data) => {
+  const { modifiedCount } = await Collection.updateOne(
+    {
+      _id,
+      owner: userId,
+    },
+    data,
+    {
+      new: true,
+    }
+  );
+  return modifiedCount === 1;
+};
+
 module.exports.addMember = async (_id, memberId) => {
   const collection = await Collection.findByIdAndUpdate(
     _id,
