@@ -101,7 +101,7 @@ const router = express.Router();
  *   collection-medias:
  *     type: array
  *     items:
- *       $ref: '#/definitions/CollectionListMedia'
+ *       $ref: '#/definitions/MediaList'
  *     description: medias in collection
  *   collection-members:
  *     type: array

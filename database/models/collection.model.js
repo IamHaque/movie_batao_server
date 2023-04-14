@@ -1,11 +1,16 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const CollectionMediaSchema = mongoose.Schema({
-  mediaId: Number,
-  mediaType: String,
-  watchedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-});
+const CollectionMediaSchema = mongoose.Schema(
+  {
+    mediaId: Number,
+    mediaType: String,
+    watchedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  },
+  {
+    timestamps: true,
+  }
+);
 
 const collectionSchema = new Schema(
   {

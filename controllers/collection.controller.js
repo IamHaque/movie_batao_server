@@ -1,7 +1,10 @@
+const axios = require('axios');
 const Logger = require('../middlewares/logger.middleware');
 
 const UserService = require('../database/services/user.service');
 const CollectionService = require('../database/services/collection.service');
+
+const MovieHandler = require('../handlers/media.handler');
 
 /**
  * Returns user collections
@@ -27,17 +30,59 @@ module.exports.getCollection = async (req, res, next) => {
   const collection = await CollectionService.checkAndFind(collectionId, userId);
   if (!collection) return next(new Error('error fetching collection'));
 
-  const { _id, email, username } = await UserService.getById(collection?.owner);
-  res.send({
-    ...collection,
-    members: [
-      {
+  let collectionMedias = collection?.medias || [];
+  collectionMedias = collectionMedias.sort((a, b) => b.createdAt - a.createdAt);
+
+  const mediaDataPromises = [];
+  for (let media of collectionMedias) {
+    mediaDataPromises.push(
+      axios({
+        method: 'get',
+        url: MovieHandler.searchByIdEndpoint(media.mediaId, media.mediaType),
+      })
+    );
+  }
+
+  let medias = [];
+  const allResponses = await Promise.all(mediaDataPromises);
+  for (let response of allResponses) {
+    try {
+      const mediaId = response.data.id;
+      const mediaType = response?.request?.path?.includes('tv')
+        ? 'tv'
+        : 'movie';
+      const result = MovieHandler.mapMediaObject(response.data, mediaType);
+
+      const { _id, createdAt, updatedAt, watchedBy } = collectionMedias.find(
+        (el) => el.mediaId === mediaId
+      );
+
+      medias.push({
         _id,
-        email,
-        username,
-      },
-      ...collection.members,
-    ],
+        createdAt,
+        updatedAt,
+        watchedBy,
+        ...result,
+      });
+    } catch (e) {}
+  }
+
+  const { _id, email, username } = await UserService.getById(collection?.owner);
+  const members = [
+    {
+      _id,
+      email,
+      username,
+    },
+    ...collection.members,
+  ];
+
+  delete collection.medias;
+  delete collection.members;
+  res.send({
+    medias,
+    members,
+    ...collection,
   });
 };
 
