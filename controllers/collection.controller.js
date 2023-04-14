@@ -145,7 +145,7 @@ module.exports.updateCollection = async (req, res, next) => {
   if (!collectionId) return next(new Error('collectionId is required'));
 
   const { name, isPublic } = req.body;
-  if (name === undefined && isPublic === undefined)
+  if (!name || isPublic === undefined)
     return next(new Error('no data to update'));
 
   const { _id } = req?.user;
@@ -158,16 +158,11 @@ module.exports.updateCollection = async (req, res, next) => {
   if (!isUserCollectionOwner)
     return next(new Error('user not collection owner'));
 
-  if (
-    name !== undefined &&
-    isPublic !== undefined &&
-    name === collection.name &&
-    isPublic === collection.isPublic
-  )
+  if (name === collection.name && isPublic === collection.isPublic)
     return next(new Error('no data to update'));
 
   const updateData = {
-    name: name === undefined ? collection.name : name,
+    name: !name ? collection.name : name,
     isPublic: isPublic === undefined ? collection.isPublic : isPublic,
   };
 
