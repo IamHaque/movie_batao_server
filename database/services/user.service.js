@@ -83,6 +83,16 @@ module.exports.getAllCollections = async (_id) => {
   return user?._doc?.collections;
 };
 
+module.exports.getAllCollectionNames = async (_id) => {
+  const collections = await User.findById(_id)
+    .select('collections -_id')
+    .populate({
+      path: 'collections',
+      select: 'name',
+    });
+  return collections?._doc?.collections;
+};
+
 module.exports.addCollection = async (_id, collectionId) => {
   const user = await User.findByIdAndUpdate(
     _id,

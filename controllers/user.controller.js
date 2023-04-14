@@ -23,10 +23,13 @@ module.exports.login = async (req, res, next) => {
   const token = JwtHandler.generateToken({ _id: user._id, providerId, email });
   user.token = token;
 
+  let collections = await UserService.getAllCollectionNames(user?._id);
+  if (!collections) collections = [];
+
   delete user.collections;
   delete user.favorites;
   delete user.__v;
-  res.send(user);
+  res.send({ ...user, collections });
 };
 
 /**
@@ -54,8 +57,11 @@ module.exports.register = async (req, res, next) => {
   const token = JwtHandler.generateToken({ _id: user._id, providerId, email });
   user.token = token;
 
+  let collections = await UserService.getAllCollectionNames(user?._id);
+  if (!collections) collections = [];
+
   delete user.collections;
   delete user.favorites;
   delete user.__v;
-  res.send(user);
+  res.send({ ...user, collections });
 };

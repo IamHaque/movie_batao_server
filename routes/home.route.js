@@ -212,6 +212,15 @@ const router = express.Router();
  *       token:
  *         type: string
  *         example: eyJhbGciOiJIUzI1
+ *       collections:
+ *         type: array
+ *         items:
+ *           type: object
+ *           properties:
+ *             _id:
+ *               $ref: '#/definitions/collection-id'
+ *             name:
+ *               $ref: '#/definitions/collection-name'
  *
  *   FavoriteList:
  *     properties:
