@@ -20,7 +20,7 @@ module.exports.getCollections = async (req, res, next) => {
  * @requires {collectionId} collectionId: collection id
  */
 module.exports.getCollection = async (req, res, next) => {
-  const { collectionId } = req.body;
+  const { collectionId } = req.params;
   if (!collectionId) return next(new Error('collectionId is required'));
 
   const { _id: userId } = req?.user;
@@ -71,7 +71,7 @@ module.exports.createCollection = async (req, res, next) => {
  * @requires {collectionId} collectionId: collection id
  */
 module.exports.isEmptyCollection = async (req, res, next) => {
-  const { collectionId } = req.body;
+  const { collectionId } = req.params;
   if (!collectionId) return next(new Error('collectionId is required'));
 
   const { _id } = req?.user;
@@ -94,7 +94,7 @@ module.exports.isEmptyCollection = async (req, res, next) => {
  * @requires {collectionId} collectionId: collection id
  */
 module.exports.removeCollection = async (req, res, next) => {
-  const { collectionId } = req.body;
+  const { collectionId } = req.params;
   if (!collectionId) return next(new Error('collectionId is required'));
 
   const { _id } = req?.user;
@@ -174,7 +174,7 @@ module.exports.removeMedia = async (req, res, next) => {
  * @requires {collectionId} collectionId: collection id
  */
 module.exports.joinCollection = async (req, res, next) => {
-  const { collectionId } = req.body;
+  const { collectionId } = req.params;
   if (!collectionId) return next(new Error('collectionId is required'));
 
   const { _id: memberId } = req?.user;
@@ -214,7 +214,7 @@ module.exports.joinCollection = async (req, res, next) => {
  * @requires {collectionId} collectionId: collection id
  */
 module.exports.leaveCollection = async (req, res, next) => {
-  const { collectionId } = req.body;
+  const { collectionId } = req.params;
   if (!collectionId) return next(new Error('collectionId is required'));
 
   const { _id } = req?.user;
@@ -264,7 +264,8 @@ function getCollectionSummary(collection) {
   if (collection._doc) collection = collection?._doc;
 
   const mediaCount = collection?.medias?.length || 0;
-  const memberCount = collection?.members?.length || 0;
+  let memberCount = collection?.members?.length || 0;
+  memberCount += 1;
 
   delete collection.__v;
   delete collection.medias;

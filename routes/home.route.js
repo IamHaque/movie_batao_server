@@ -344,11 +344,18 @@ const router = express.Router();
  *     name: limit
  *     schema:
  *       $ref: '#/definitions/limit'
+ *
  *   categoryQueryParam:
  *     in: path
  *     name: category
  *     schema:
  *       $ref: '#/definitions/category'
+ *     required: true
+ *   collectionIdQueryParam:
+ *     in: path
+ *     name: collectionId
+ *     schema:
+ *       $ref: '#/definitions/collection-id'
  *     required: true
  *
  */

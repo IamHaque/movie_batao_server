@@ -8,7 +8,7 @@ const { auth } = require('../middlewares/auth.middleware');
 
 /**
  * @swagger
- * /favorite/:
+ * /favorite:
  *   get:
  *     summary: Get user favorites
  *     description: Returns a list of user's favorite medias
