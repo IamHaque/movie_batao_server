@@ -5,6 +5,7 @@ const CollectionMediaSchema = mongoose.Schema(
   {
     mediaId: Number,
     mediaType: String,
+    addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     watchedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
   {

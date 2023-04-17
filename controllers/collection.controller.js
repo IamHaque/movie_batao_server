@@ -30,6 +30,16 @@ module.exports.getCollection = async (req, res, next) => {
   const collection = await CollectionService.checkAndFind(collectionId, userId);
   if (!collection) return next(new Error('error fetching collection'));
 
+  const { _id, email, username } = await UserService.getById(collection?.owner);
+  const members = [
+    {
+      _id,
+      email,
+      username,
+    },
+    ...collection.members,
+  ];
+
   let collectionMedias = collection?.medias || [];
   collectionMedias = collectionMedias.sort((a, b) => b.createdAt - a.createdAt);
 
@@ -53,12 +63,12 @@ module.exports.getCollection = async (req, res, next) => {
         : 'movie';
       const result = MovieHandler.mapMediaObject(response.data, mediaType);
 
-      const { _id, createdAt, updatedAt, watchedBy } = collectionMedias.find(
-        (el) => el.mediaId === mediaId
-      );
+      const { _id, createdAt, updatedAt, addedBy, watchedBy } =
+        collectionMedias.find((el) => el.mediaId === mediaId);
 
       medias.push({
         _id,
+        addedBy,
         createdAt,
         updatedAt,
         watchedBy,
@@ -66,16 +76,6 @@ module.exports.getCollection = async (req, res, next) => {
       });
     } catch (e) {}
   }
-
-  const { _id, email, username } = await UserService.getById(collection?.owner);
-  const members = [
-    {
-      _id,
-      email,
-      username,
-    },
-    ...collection.members,
-  ];
 
   delete collection.medias;
   delete collection.members;
@@ -228,6 +228,7 @@ module.exports.addMedia = async (req, res, next) => {
   const status = await CollectionService.checkAndAddMedia(collectionId, _id, {
     mediaId,
     mediaType,
+    addedBy: _id,
   });
   if (!status) return next(new Error('error adding media to collection'));
 

@@ -212,15 +212,6 @@ const router = express.Router();
  *       token:
  *         type: string
  *         example: eyJhbGciOiJIUzI1
- *       collections:
- *         type: array
- *         items:
- *           type: object
- *           properties:
- *             _id:
- *               $ref: '#/definitions/collection-id'
- *             name:
- *               $ref: '#/definitions/collection-name'
  *
  *   FavoriteList:
  *     properties:
@@ -269,7 +260,12 @@ const router = express.Router();
  *       updatedAt:
  *         $ref: '#/definitions/db-timestamp'
  *       medias:
- *         $ref: '#/definitions/collection-medias'
+ *         type: array
+ *         items:
+ *           allOf:
+ *             - $ref: '#/definitions/CollectionListMedia'
+ *             - $ref: '#/definitions/MediaList'
+ *
  *       members:
  *         $ref: '#/definitions/collection-members'
  *
@@ -277,10 +273,8 @@ const router = express.Router();
  *     properties:
  *       _id:
  *         $ref: '#/definitions/db-id'
- *       mediaId:
- *         $ref: '#/definitions/mediaId'
- *       mediaType:
- *         $ref: '#/definitions/mediaType'
+ *       addedBy:
+ *         $ref: '#/definitions/db-id'
  *       watchedBy:
  *         type: array
  *         items:
